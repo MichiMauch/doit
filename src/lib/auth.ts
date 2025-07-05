@@ -8,6 +8,9 @@ const ALLOWED_EMAILS = [
 ];
 
 console.log("🔐 Auth config initialized with allowed emails:", ALLOWED_EMAILS);
+console.log("🔐 NEXTAUTH_URL:", process.env.NEXTAUTH_URL);
+console.log("🔐 NEXTAUTH_SECRET exists:", !!process.env.NEXTAUTH_SECRET);
+console.log("🔐 GOOGLE_CLIENT_ID exists:", !!process.env.GOOGLE_CLIENT_ID);
 
 async function refreshAccessToken(token: JWT) {
   try {
@@ -67,26 +70,35 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    async signIn({ user, account, profile }) {
+      console.log("🔐 SignIn callback for:", user.email);
+      
+      // Allow sign-in for anyone, authorization happens in middleware
+      if (user.email && account?.provider === "google") {
+        console.log("🔐 Google sign-in successful for:", user.email);
+        return true;
+      }
+      
+      console.log("🔐 Sign-in rejected - no email or invalid provider");
+      return false;
+    },
     async jwt({ token, account, user }) {
       // Initial sign in
       if (account && user) {
         console.log("🔐 JWT: Initial sign-in for:", user.email);
         
-        // Don't throw error here, the signIn callback already handled authorization
         return {
           ...token,
           accessToken: account.access_token,
           refreshToken: account.refresh_token,
-          accessTokenExpires: account.expires_at! * 1000, // Convert to milliseconds
+          accessTokenExpires: account.expires_at! * 1000,
           user,
         };
       }
 
       // Return previous token if the access token has not expired yet
-      // Add 5 minutes buffer before expiration to prevent edge cases
-      const bufferTime = 5 * 60 * 1000; // 5 minutes in milliseconds
+      const bufferTime = 5 * 60 * 1000; // 5 minutes
       if (Date.now() < ((token.accessTokenExpires as number) - bufferTime)) {
-        console.log("🔐 Access token still valid");
         return token;
       }
 
@@ -95,14 +107,8 @@ export const authOptions: NextAuthOptions = {
       return refreshAccessToken(token);
     },
     async session({ session, token }) {
-      // Send properties to the client
       session.accessToken = token.accessToken as string;
       session.error = token.error as string | undefined;
-      
-      if (token.error) {
-        console.error("🔐 Session has auth error:", token.error);
-      }
-      
       return session;
     },
   },
@@ -112,6 +118,7 @@ export const authOptions: NextAuthOptions = {
   },
   debug: process.env.NODE_ENV === "development",
   session: {
-    maxAge: 7 * 24 * 60 * 60, // 7 days instead of 30 days
+    strategy: "jwt",
+    maxAge: 7 * 24 * 60 * 60, // 7 days
   },
 };

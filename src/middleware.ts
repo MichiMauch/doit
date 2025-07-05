@@ -9,25 +9,27 @@ export default withAuth(
   {
     callbacks: {
       authorized: ({ token, req }) => {
-        console.log("🔒 Middleware check for:", req.nextUrl.pathname);
-        console.log("🔒 Token exists:", !!token);
+        const pathname = req.nextUrl.pathname;
         
-        if (!token) {
-          console.log("🔒 No token, redirecting to sign in");
-          return false;
-        }
-        
-        console.log("🔒 Token email:", token.email);
-        console.log("🔒 Allowed emails:", ALLOWED_EMAILS);
-        
-        // Check if user email is authorized
-        if (token.email && ALLOWED_EMAILS.includes(token.email.toLowerCase())) {
-          console.log("🔒 ✅ Email authorized, allowing access");
+        // Always allow auth pages, API routes, and debug
+        if (pathname.startsWith('/auth') || pathname.startsWith('/api') || pathname.startsWith('/debug')) {
           return true;
         }
         
-        console.log("🔒 ❌ Email not authorized, denying access");
-        return false;
+        // If no token, redirect to sign in
+        if (!token?.email) {
+          return false;
+        }
+        
+        // Check if email is authorized
+        const isAuthorized = ALLOWED_EMAILS.includes(token.email.toLowerCase());
+        
+        if (!isAuthorized) {
+          // Redirect unauthorized users to error page instead of sign in
+          return false;
+        }
+        
+        return true;
       },
     },
     pages: {
@@ -37,17 +39,9 @@ export default withAuth(
   }
 );
 
-// Protect all routes except auth pages and public assets
+// Protect main routes but exclude auth and static files
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api/auth (NextAuth endpoints)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - auth (auth pages)
-     */
-    "/((?!api/auth|_next/static|_next/image|favicon.ico|auth).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|auth|debug).*)",
   ],
 };

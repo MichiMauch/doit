@@ -15,7 +15,9 @@
       "Bash(touch:*)",
       "Bash(sudo rm:*)",
       "Bash(chmod:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(vercel ls:*)",
+      "Bash(vercel:*)"
     ],
     "deny": []
   }
