@@ -289,6 +289,17 @@ export function StatisticsModal({ isOpen, onClose }: StatisticsModalProps) {
       if (response.ok) {
         const todos: Todo[] = await response.json();
         console.log("Loaded todos for statistics:", todos);
+        
+        // Debug: Check each todo's status
+        todos.forEach((todo, index) => {
+          console.log(`Todo ${index + 1}:`, {
+            id: todo.id,
+            title: todo.title,
+            completed: todo.completed,
+            createdAt: todo.createdAt,
+            updatedAt: todo.updatedAt
+          });
+        });
 
         // Validiere dass todos ein Array ist
         if (Array.isArray(todos)) {
