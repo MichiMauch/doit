@@ -70,7 +70,7 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
       console.log("🔐 SignIn callback for:", user.email);
       
       // Allow sign-in for anyone, authorization happens in middleware
