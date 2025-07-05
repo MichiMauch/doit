@@ -23,7 +23,7 @@ export default function SignIn() {
             Private Task Management App
           </p>
           <p className="text-sm text-warning-700 mt-2 bg-warning-50 border border-warning-200 rounded-lg p-3">
-            <strong>Hinweis:</strong> Diese App ist privat und nur für autorisierte Benutzer zugänglich.
+            <strong>Hinweis:</strong> Diese App ist privat und nur für autorisierte Benutzer zugänglich. 🔒
           </p>
         </div>
 
