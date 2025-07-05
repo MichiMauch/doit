@@ -4,8 +4,10 @@ import { JWT } from "next-auth/jwt";
 
 // Allowed email addresses - only you can access the app
 const ALLOWED_EMAILS = [
-  process.env.ALLOWED_EMAIL || "your-email@example.com", // Add your email to .env.local
+  (process.env.ALLOWED_EMAIL || "your-email@example.com").toLowerCase(), // Add your email to .env.local
 ];
+
+console.log("🔐 Auth config initialized with allowed emails:", ALLOWED_EMAILS);
 
 async function refreshAccessToken(token: JWT) {
   try {
@@ -66,20 +68,28 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async signIn({ user }) {
+      console.log("🔐 Sign-in attempt by:", user.email);
+      console.log("🔐 Allowed emails:", ALLOWED_EMAILS);
+      console.log("🔐 Environment ALLOWED_EMAIL:", process.env.ALLOWED_EMAIL);
+      
       // Check if user email is in allowed list
-      if (user.email && ALLOWED_EMAILS.includes(user.email)) {
-        console.log("🔐 Authorized user signed in:", user.email);
+      if (user.email && ALLOWED_EMAILS.includes(user.email.toLowerCase())) {
+        console.log("✅ Authorized user signed in:", user.email);
         return true;
       }
       
       console.log("🚫 Unauthorized access attempt:", user.email);
-      return false; // Deny access
+      console.log("🚫 User email not in allowed list:", ALLOWED_EMAILS);
+      
+      // Redirect to error page with specific error
+      return "/auth/error?error=AccessDenied";
     },
     async jwt({ token, account, user }) {
       // Initial sign in
       if (account && user) {
         // Double-check email authorization
-        if (!user.email || !ALLOWED_EMAILS.includes(user.email)) {
+        if (!user.email || !ALLOWED_EMAILS.includes(user.email.toLowerCase())) {
+          console.log("🚫 JWT: Unauthorized email:", user.email);
           throw new Error("Unauthorized access");
         }
         
@@ -121,6 +131,7 @@ export const authOptions: NextAuthOptions = {
     signIn: "/auth/signin",
     error: "/auth/error",
   },
+  debug: process.env.NODE_ENV === "development",
   session: {
     maxAge: 7 * 24 * 60 * 60, // 7 days instead of 30 days
   },

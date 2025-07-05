@@ -3,7 +3,13 @@ import { withAuth } from "next-auth/middleware";
 export default withAuth(
   {
     callbacks: {
-      authorized: ({ token }) => {
+      authorized: ({ token, req }) => {
+        console.log("🔒 Middleware check for:", req.nextUrl.pathname);
+        console.log("🔒 Token exists:", !!token);
+        if (token) {
+          console.log("🔒 Token email:", token.email);
+        }
+        
         // User must be authenticated to access protected routes
         return !!token;
       },
