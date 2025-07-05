@@ -26,7 +26,7 @@ export function MobileBottomNav({
           onClick={onSmartSuggestions}
           className={cn(
             "h-full rounded-xl mx-1 flex flex-col items-center justify-center gap-1",
-            "text-purple-600 hover:text-purple-700 hover:bg-purple-50/80 transition-all duration-200"
+            "text-gray-600 hover:text-primary-600 hover:bg-primary-50/80 transition-all duration-200"
           )}
         >
           <Lightbulb className="h-5 w-5" />

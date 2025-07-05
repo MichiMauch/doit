@@ -65,7 +65,7 @@ export function TodoHeader({
             <Button
               variant="outline"
               onClick={onSmartSuggestions}
-              className="border-purple-300 text-purple-600 hover:bg-purple-50 shadow-sm"
+              className="border-primary-300 text-primary-600 hover:bg-primary-50 shadow-sm"
             >
               <Lightbulb className="h-4 w-4 mr-2" />
               Smart Suggestions
