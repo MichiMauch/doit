@@ -67,33 +67,12 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async signIn({ user }) {
-      console.log("🔐 Sign-in attempt by:", user.email);
-      console.log("🔐 Allowed emails:", ALLOWED_EMAILS);
-      console.log("🔐 Environment ALLOWED_EMAIL:", process.env.ALLOWED_EMAIL);
-      
-      // Check if user email is in allowed list
-      if (user.email && ALLOWED_EMAILS.includes(user.email.toLowerCase())) {
-        console.log("✅ Authorized user signed in:", user.email);
-        return true;
-      }
-      
-      console.log("🚫 Unauthorized access attempt:", user.email);
-      console.log("🚫 User email not in allowed list:", ALLOWED_EMAILS);
-      
-      // Redirect to error page with specific error
-      return "/auth/error?error=AccessDenied";
-    },
     async jwt({ token, account, user }) {
       // Initial sign in
       if (account && user) {
-        // Double-check email authorization
-        if (!user.email || !ALLOWED_EMAILS.includes(user.email.toLowerCase())) {
-          console.log("🚫 JWT: Unauthorized email:", user.email);
-          throw new Error("Unauthorized access");
-        }
+        console.log("🔐 JWT: Initial sign-in for:", user.email);
         
-        console.log("🔐 Initial Google sign-in, storing tokens");
+        // Don't throw error here, the signIn callback already handled authorization
         return {
           ...token,
           accessToken: account.access_token,

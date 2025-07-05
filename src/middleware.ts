@@ -1,17 +1,33 @@
 import { withAuth } from "next-auth/middleware";
 
+// Allowed email addresses
+const ALLOWED_EMAILS = [
+  (process.env.ALLOWED_EMAIL || "your-email@example.com").toLowerCase(),
+];
+
 export default withAuth(
   {
     callbacks: {
       authorized: ({ token, req }) => {
         console.log("🔒 Middleware check for:", req.nextUrl.pathname);
         console.log("🔒 Token exists:", !!token);
-        if (token) {
-          console.log("🔒 Token email:", token.email);
+        
+        if (!token) {
+          console.log("🔒 No token, redirecting to sign in");
+          return false;
         }
         
-        // User must be authenticated to access protected routes
-        return !!token;
+        console.log("🔒 Token email:", token.email);
+        console.log("🔒 Allowed emails:", ALLOWED_EMAILS);
+        
+        // Check if user email is authorized
+        if (token.email && ALLOWED_EMAILS.includes(token.email.toLowerCase())) {
+          console.log("🔒 ✅ Email authorized, allowing access");
+          return true;
+        }
+        
+        console.log("🔒 ❌ Email not authorized, denying access");
+        return false;
       },
     },
     pages: {
