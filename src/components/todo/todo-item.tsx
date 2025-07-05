@@ -153,11 +153,20 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete, onStatusChange }: T
     >
       <div className="flex items-start gap-3">
         {/* Checkbox */}
-        <Checkbox
-          checked={todo.completed}
-          onCheckedChange={handleToggle}
-          className="mt-0.5 cursor-pointer"
-        />
+        <div 
+          onClick={(e) => {
+            e.stopPropagation();
+            handleToggle();
+          }}
+          onPointerDown={(e) => e.stopPropagation()}
+          className="flex-shrink-0"
+        >
+          <Checkbox
+            checked={todo.completed}
+            onCheckedChange={handleToggle}
+            className="mt-0.5 cursor-pointer"
+          />
+        </div>
 
         {/* Content */}
         <div className="flex-1 min-w-0">
