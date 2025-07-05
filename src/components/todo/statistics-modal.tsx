@@ -238,7 +238,6 @@ export function StatisticsModal({ isOpen, onClose }: StatisticsModalProps) {
       const averageTasksPerDay = totalCompleted / daysWithData;
 
       // Prioritätsverteilung (nur erledigte Aufgaben)
-      const completedTodos = todos.filter(todo => todo.completed);
       const priorityDistribution = {
         high: completedTodos.filter((todo) => todo.priority === "high").length,
         medium: completedTodos.filter((todo) => todo.priority === "medium").length,
