@@ -33,14 +33,25 @@ interface TodoItemProps {
   onToggle: (id: number) => void;
   onEdit: (todo: Todo) => void;
   onDelete: (id: number) => void;
-  onStatusChange?: (id: number, status: "todo" | "in_progress" | "done") => void;
+  onStatusChange?: (
+    id: number,
+    status: "todo" | "in_progress" | "done"
+  ) => void;
 }
 
-export function TodoItem({ todo, onToggle, onEdit, onDelete, onStatusChange }: TodoItemProps) {
+export function TodoItem({
+  todo,
+  onToggle,
+  onEdit,
+  onDelete,
+  onStatusChange,
+}: TodoItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
 
   const handleToggle = () => {
+    console.log("🔥 CHECKBOX CLICKED! Todo ID:", todo.id, "Current completed:", todo.completed);
+    
     // Wenn die Aufgabe als erledigt markiert wird, zeige Celebration
     if (!todo.completed) {
       setShowCelebration(true);
@@ -135,7 +146,18 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete, onStatusChange }: T
 
   // Status-Wechsel-Handler
   const handleStatusChange = (newStatus: "todo" | "in_progress" | "done") => {
-    if (onStatusChange) onStatusChange(todo.id, newStatus);
+    console.log("🔄 STATUS CHANGE TRIGGERED!");
+    console.log("- Todo ID:", todo.id);
+    console.log("- Current Status:", todo.status);
+    console.log("- New Status:", newStatus);
+    console.log("- onStatusChange prop exists:", !!onStatusChange);
+    
+    if (onStatusChange) {
+      console.log("✅ Calling onStatusChange with:", { id: todo.id, newStatus });
+      onStatusChange(todo.id, newStatus);
+    } else {
+      console.error("❌ onStatusChange prop is missing!");
+    }
   };
 
   return (
@@ -153,7 +175,7 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete, onStatusChange }: T
     >
       <div className="flex items-start gap-3">
         {/* Checkbox */}
-        <div 
+        <div
           onClick={(e) => {
             e.stopPropagation();
             handleToggle();
@@ -183,7 +205,9 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete, onStatusChange }: T
               </h3>
 
               {/* Status-Badge */}
-              <span className={`inline-block text-xs font-semibold px-2 py-1 rounded ${statusColor} mr-2 mt-1`}>
+              <span
+                className={`inline-block text-xs font-semibold px-2 py-1 rounded ${statusColor} mr-2 mt-1`}
+              >
                 {statusLabel}
               </span>
 
@@ -223,13 +247,30 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete, onStatusChange }: T
                   <Timer className="h-4 w-4 mr-2" /> Status ändern:
                 </DropdownMenuItem>
                 {todo.status !== "todo" && (
-                  <DropdownMenuItem onClick={() => handleStatusChange("todo")}>Zu erledigen</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => {
+                    console.log("🖱️ Dropdown item clicked: 'Zu erledigen'");
+                    handleStatusChange("todo");
+                  }}>
+                    Zu erledigen
+                  </DropdownMenuItem>
                 )}
                 {todo.status !== "in_progress" && (
-                  <DropdownMenuItem onClick={() => handleStatusChange("in_progress")}>In Bearbeitung</DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      console.log("🖱️ Dropdown item clicked: 'In Bearbeitung'");
+                      handleStatusChange("in_progress");
+                    }}
+                  >
+                    In Bearbeitung
+                  </DropdownMenuItem>
                 )}
                 {todo.status !== "done" && !todo.completed && (
-                  <DropdownMenuItem onClick={() => handleStatusChange("done")}>Erledigt</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => {
+                    console.log("🖱️ Dropdown item clicked: 'Erledigt'");
+                    handleStatusChange("done");
+                  }}>
+                    Erledigt
+                  </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
