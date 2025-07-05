@@ -192,11 +192,20 @@ export default function Dashboard() {
 
   const handleToggleTodo = async (id: number) => {
     try {
+      console.log("🔄 Toggling todo ID:", id);
+      
       const response = await fetch(`/api/todos/${id}/toggle`, {
         method: "PATCH",
       });
 
-      if (!response.ok) throw new Error("Failed to toggle todo");
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("❌ Toggle failed:", response.status, errorText);
+        throw new Error(`Failed to toggle todo: ${response.status}`);
+      }
+      
+      const updatedTodo = await response.json();
+      console.log("✅ Toggle successful:", updatedTodo);
 
       // Reload todos and stats
       await loadTodos();
