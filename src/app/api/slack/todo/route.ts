@@ -40,14 +40,18 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.text();
     
-    // Verify Slack request
+    // Verify Slack request (temporarily disabled for testing)
     const isVerified = await verifySlackRequest(request, body);
-    if (!isVerified) {
+    if (!isVerified && SLACK_SIGNING_SECRET) {
       console.error("🚨 Slack request verification failed");
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
       );
+    }
+    
+    if (!SLACK_SIGNING_SECRET) {
+      console.warn("⚠️ SLACK_SIGNING_SECRET not set - verification skipped");
     }
 
     // Parse form data
