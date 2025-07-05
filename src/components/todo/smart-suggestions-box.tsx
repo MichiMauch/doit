@@ -213,23 +213,46 @@ export function SmartSuggestionsBox({
             </span>
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="space-y-3">
-            <div className="flex items-center space-x-2">
-              <Skeleton className="h-4 w-4 rounded-full" />
-              <Skeleton className="h-4 w-32" />
+        <CardContent className="space-y-4">
+          {/* Loading Suggestion Cards */}
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="border rounded-lg p-4 space-y-3 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200/50"
+            >
+              {/* Event Header */}
+              <div className="flex items-center space-x-2">
+                <Skeleton className="h-4 w-4 rounded-full bg-purple-200" />
+                <Skeleton className="h-4 w-32 bg-purple-200" />
+                <Skeleton className="h-6 w-16 rounded-full bg-blue-200" />
+              </div>
+              
+              {/* Event Title */}
+              <Skeleton className="h-5 w-3/4 bg-gray-300" />
+              
+              {/* Suggested Todos */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24 bg-green-200" />
+                <div className="space-y-1">
+                  <Skeleton className="h-3 w-full bg-gray-200" />
+                  <Skeleton className="h-3 w-5/6 bg-gray-200" />
+                </div>
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="flex gap-2 pt-2">
+                <Skeleton className="h-8 w-20 rounded bg-green-200" />
+                <Skeleton className="h-8 w-8 rounded bg-gray-200" />
+              </div>
             </div>
-            <Skeleton className="h-16 w-full rounded-lg" />
-            <div className="flex items-center space-x-2">
-              <Skeleton className="h-4 w-4 rounded-full" />
-              <Skeleton className="h-4 w-40" />
+          ))}
+          
+          {/* Loading Progress Indicator */}
+          <div className="text-center py-2">
+            <div className="flex items-center justify-center gap-2 text-sm text-purple-600">
+              <RefreshCw className="h-4 w-4 animate-spin" />
+              <span>Erstelle intelligente Vorschläge...</span>
             </div>
-            <Skeleton className="h-16 w-full rounded-lg" />
-            <div className="flex items-center space-x-2">
-              <Skeleton className="h-4 w-4 rounded-full" />
-              <Skeleton className="h-4 w-36" />
-            </div>
-            <Skeleton className="h-16 w-full rounded-lg" />
           </div>
         </CardContent>
       </Card>
