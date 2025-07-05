@@ -132,6 +132,10 @@ export function TodoForm({
         if (dueTime) {
           const [hours, minutes] = dueTime.split(":").map(Number);
           dueDatetime.setHours(hours, minutes, 0, 0);
+        } else {
+          // If no time is specified, set to end of business day (17:00)
+          // This gives the scheduler flexibility to schedule within business hours
+          dueDatetime.setHours(17, 0, 0, 0);
         }
       }
 
