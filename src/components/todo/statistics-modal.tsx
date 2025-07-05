@@ -6,8 +6,6 @@ import {
   endOfWeek,
   subWeeks,
   subDays,
-  isAfter,
-  isBefore,
   isWithinInterval,
   startOfDay,
 } from "date-fns";
@@ -191,12 +189,6 @@ export function StatisticsModal({ isOpen, onClose }: StatisticsModalProps) {
       const lastWeekStart = startOfWeek(subWeeks(now, 1), { weekStartsOn: 1 });
       const lastWeekEnd = endOfWeek(subWeeks(now, 1), { weekStartsOn: 1 });
 
-      // Debug-Logs für Troubleshooting
-      console.log("📊 Statistics Debug:");
-      console.log("- Total todos:", todos.length);
-      console.log("- Completed todos:", todos.filter(t => t.completed).length);
-      console.log("- Current week start:", currentWeekStart.toISOString());
-      console.log("- Current week end:", currentWeekEnd.toISOString());
       
       // Filtere Aufgaben nach Wochen (basierend auf wann sie erledigt wurden)
       const currentWeekTodos = todos.filter((todo) => {
@@ -207,13 +199,6 @@ export function StatisticsModal({ isOpen, onClose }: StatisticsModalProps) {
           end: currentWeekEnd,
         });
         
-        if (isInCurrentWeek) {
-          console.log("✅ Found current week todo:", {
-            title: todo.title,
-            completedAt: completedAt.toISOString(),
-            updatedAt: todo.updatedAt
-          });
-        }
         
         return isInCurrentWeek;
       });
@@ -227,8 +212,6 @@ export function StatisticsModal({ isOpen, onClose }: StatisticsModalProps) {
         });
       });
 
-      console.log("📊 Current week todos found:", currentWeekTodos.length);
-      console.log("📊 Last week todos found:", lastWeekTodos.length);
       
       // Berechne Wochen-Statistiken
       const currentWeek = calculateWeekStats(currentWeekTodos);
@@ -288,18 +271,7 @@ export function StatisticsModal({ isOpen, onClose }: StatisticsModalProps) {
       const response = await fetch("/api/todos?filter=all");
       if (response.ok) {
         const todos: Todo[] = await response.json();
-        console.log("Loaded todos for statistics:", todos);
         
-        // Debug: Check each todo's status
-        todos.forEach((todo, index) => {
-          console.log(`Todo ${index + 1}:`, {
-            id: todo.id,
-            title: todo.title,
-            completed: todo.completed,
-            createdAt: todo.createdAt,
-            updatedAt: todo.updatedAt
-          });
-        });
 
         // Validiere dass todos ein Array ist
         if (Array.isArray(todos)) {

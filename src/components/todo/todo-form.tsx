@@ -161,15 +161,11 @@ export function TodoForm({
       // Automatisches Scheduling wenn aktiviert und estimatedHours vorhanden
       if (autoSchedule && estimatedHours && Number(estimatedHours) > 0) {
         try {
-          console.log("🗓️ Erstelle automatische Kalendertermine...");
 
           // Prüfe Authentifizierung
           const authResult = await GoogleCalendarService.checkAuthentication();
           if (!authResult.authenticated) {
             if (authResult.reason === "insufficient_scope") {
-              console.warn(
-                "⚠️ Unzureichende Google Calendar Berechtigungen - Bitte neu anmelden"
-              );
               toast({
                 variant: "destructive",
                 title: "Kalender-Berechtigung fehlt",
@@ -177,9 +173,6 @@ export function TodoForm({
                   "Bitte loggen Sie sich aus und wieder ein, um automatisches Scheduling zu nutzen.",
               });
             } else {
-              console.warn(
-                "⚠️ Nicht bei Google Calendar angemeldet - Scheduling übersprungen"
-              );
               toast({
                 title: toastTitle,
                 description:
@@ -203,13 +196,11 @@ export function TodoForm({
           );
 
           if (timeBlocks.length > 0) {
-            console.log(`📅 ${timeBlocks.length} Zeitblöcke geplant`);
             const success = await CalendarScheduler.createCalendarEvents(
               timeBlocks
             );
 
             if (success) {
-              console.log(`✅ Kalendertermine erfolgreich erstellt`);
 
               // Formatiere die geplanten Zeiten für die Toast-Nachricht
               const scheduleInfo = timeBlocks
@@ -227,9 +218,6 @@ export function TodoForm({
                 description: `"${title.trim()}" wurde erstellt und automatisch für ${scheduleInfo} geplant.`,
               });
             } else {
-              console.warn(
-                "⚠️ Einige Kalendertermine konnten nicht erstellt werden"
-              );
               toast({
                 title: toastTitle,
                 description:
@@ -238,7 +226,6 @@ export function TodoForm({
               });
             }
           } else {
-            console.warn("⚠️ Keine verfügbaren Zeitslots gefunden");
             toast({
               title: toastTitle,
               description:
@@ -248,7 +235,7 @@ export function TodoForm({
           }
         } catch (schedulingError) {
           console.error(
-            "❌ Fehler beim automatischen Scheduling:",
+            "Fehler beim automatischen Scheduling:",
             schedulingError
           );
           toast({
@@ -471,15 +458,15 @@ export function TodoForm({
               <div className="ml-6 text-xs text-gray-600 space-y-1">
                 {estimatedHours && Number(estimatedHours) > 4 && (
                   <p>
-                    💡 Aufgaben über 4h werden automatisch in kleinere Blöcke
+                    Aufgaben über 4h werden automatisch in kleinere Blöcke
                     aufgeteilt
                   </p>
                 )}
                 <p>
-                  📅 Benötigt Google Calendar-Anmeldung mit Schreibberechtigung
+                  Benötigt Google Calendar-Anmeldung mit Schreibberechtigung
                 </p>
                 <p>
-                  🔒 Bei Fehlern: Bitte ab- und neu anmelden für erweiterte
+                  Bei Fehlern: Bitte ab- und neu anmelden für erweiterte
                   Berechtigungen
                 </p>
               </div>

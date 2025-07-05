@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+import { DraggableProvidedDragHandleProps } from "@hello-pangea/dnd";
 import {
   Clock,
   Calendar,
@@ -14,6 +15,7 @@ import {
   Trash2,
   Edit3,
   Timer,
+  GripVertical,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -37,6 +39,7 @@ interface TodoItemProps {
     id: number,
     status: "todo" | "in_progress" | "done"
   ) => void;
+  dragHandleProps?: DraggableProvidedDragHandleProps | null;
 }
 
 export function TodoItem({
@@ -45,13 +48,12 @@ export function TodoItem({
   onEdit,
   onDelete,
   onStatusChange,
+  dragHandleProps,
 }: TodoItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
 
   const handleToggle = () => {
-    console.log("🔥 CHECKBOX CLICKED! Todo ID:", todo.id, "Current completed:", todo.completed);
-    
     // Wenn die Aufgabe als erledigt markiert wird, zeige Celebration
     if (!todo.completed) {
       setShowCelebration(true);
@@ -146,17 +148,8 @@ export function TodoItem({
 
   // Status-Wechsel-Handler
   const handleStatusChange = (newStatus: "todo" | "in_progress" | "done") => {
-    console.log("🔄 STATUS CHANGE TRIGGERED!");
-    console.log("- Todo ID:", todo.id);
-    console.log("- Current Status:", todo.status);
-    console.log("- New Status:", newStatus);
-    console.log("- onStatusChange prop exists:", !!onStatusChange);
-    
     if (onStatusChange) {
-      console.log("✅ Calling onStatusChange with:", { id: todo.id, newStatus });
       onStatusChange(todo.id, newStatus);
-    } else {
-      console.error("❌ onStatusChange prop is missing!");
     }
   };
 
@@ -225,17 +218,29 @@ export function TodoItem({
               )}
             </div>
 
-            {/* Actions Menu */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+            {/* Actions Menu and Drag Handle */}
+            <div className="flex items-center gap-1">
+              {/* Drag Handle */}
+              {dragHandleProps && (
+                <div
+                  {...dragHandleProps}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded"
                 >
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
+                  <GripVertical className="h-4 w-4 text-gray-400" />
+                </div>
+              )}
+              
+              {/* Actions Menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => onEdit(todo)}>
                   <Edit3 className="h-4 w-4 mr-2" /> Bearbeiten
@@ -247,33 +252,25 @@ export function TodoItem({
                   <Timer className="h-4 w-4 mr-2" /> Status ändern:
                 </DropdownMenuItem>
                 {todo.status !== "todo" && (
-                  <DropdownMenuItem onClick={() => {
-                    console.log("🖱️ Dropdown item clicked: 'Zu erledigen'");
-                    handleStatusChange("todo");
-                  }}>
+                  <DropdownMenuItem onClick={() => handleStatusChange("todo")}>
                     Zu erledigen
                   </DropdownMenuItem>
                 )}
                 {todo.status !== "in_progress" && (
                   <DropdownMenuItem
-                    onClick={() => {
-                      console.log("🖱️ Dropdown item clicked: 'In Bearbeitung'");
-                      handleStatusChange("in_progress");
-                    }}
+                    onClick={() => handleStatusChange("in_progress")}
                   >
                     In Bearbeitung
                   </DropdownMenuItem>
                 )}
                 {todo.status !== "done" && !todo.completed && (
-                  <DropdownMenuItem onClick={() => {
-                    console.log("🖱️ Dropdown item clicked: 'Erledigt'");
-                    handleStatusChange("done");
-                  }}>
+                  <DropdownMenuItem onClick={() => handleStatusChange("done")}>
                     Erledigt
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
-            </DropdownMenu>
+              </DropdownMenu>
+            </div>
           </div>
 
           {/* Meta Information */}

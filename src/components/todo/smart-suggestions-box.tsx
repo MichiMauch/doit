@@ -75,7 +75,7 @@ export function SmartSuggestionsBox({
         }
       } catch (error) {
         console.warn(
-          `⚠️ Fehler beim Laden von Events für ${dateString}:`,
+          `Fehler beim Laden von Events für ${dateString}:`,
           error
         );
       }
@@ -93,9 +93,6 @@ export function SmartSuggestionsBox({
       const events = await loadCalendarEventsForDateRange(4);
 
       if (events.length === 0) {
-        console.log(
-          "📅 Keine Calendar Events gefunden - keine Smart Suggestions möglich"
-        );
         setSuggestions([]);
         return;
       }
@@ -119,14 +116,13 @@ export function SmartSuggestionsBox({
       }
 
       setSuggestions(data.suggestions);
-      console.log(`🧠 ${data.count} Smart Suggestions geladen`);
 
       // Zeige Warnung wenn vorhanden
       if (data.warning) {
-        console.warn("⚠️ Smart Suggestions Warnung:", data.warning);
+        console.warn("Smart Suggestions Warnung:", data.warning);
       }
     } catch (err) {
-      console.error("❌ Fehler beim Laden der Smart Suggestions:", err);
+      console.error("Fehler beim Laden der Smart Suggestions:", err);
       setError("Fehler beim Laden der Vorschläge");
     } finally {
       setIsLoading(false);
@@ -154,7 +150,7 @@ export function SmartSuggestionsBox({
       // Erfolg - markiere Vorschlag als verwendet
       setDismissedSuggestions((prev) => new Set(prev).add(suggestion.id));
     } catch (error) {
-      console.error("❌ Fehler beim Erstellen der Aufgabe:", error);
+      console.error("Fehler beim Erstellen der Aufgabe:", error);
     } finally {
       setCreatingTodos((prev) => {
         const newSet = new Set(prev);
@@ -209,7 +205,7 @@ export function SmartSuggestionsBox({
           <CardDescription className="flex items-center gap-2">
             <span>Analysiere deine Kalender-Termine...</span>
             <span className="inline-flex">
-              <span className="animate-pulse">🧠</span>
+              <span className="animate-pulse">🔄</span>
             </span>
           </CardDescription>
         </CardHeader>

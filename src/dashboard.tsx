@@ -56,11 +56,6 @@ export default function Dashboard() {
 
     while (retryCount < maxRetries) {
       try {
-        console.log(
-          `📊 Loading stats from API... (Attempt ${
-            retryCount + 1
-          }/${maxRetries})`
-        );
         const response = await fetch("/api/todos/stats", {
           cache: "no-cache",
           headers: {
@@ -70,7 +65,7 @@ export default function Dashboard() {
 
         if (!response.ok) {
           const errorText = await response.text();
-          console.error("❌ Stats API error:", response.status, errorText);
+          console.error("Stats API error:", response.status, errorText);
 
           if (retryCount === maxRetries - 1) {
             throw new Error(`Failed to fetch stats: ${response.status}`);
@@ -82,11 +77,10 @@ export default function Dashboard() {
         }
 
         const data = await response.json();
-        console.log("📊 Stats loaded successfully:", data);
         setStats(data);
         return; // Erfolgreich - beende die Schleife
       } catch (error) {
-        console.error("❌ Error loading stats:", error);
+        console.error("Error loading stats:", error);
 
         if (retryCount === maxRetries - 1) {
           // Letzter Versuch fehlgeschlagen - setze Default-Stats
@@ -115,7 +109,7 @@ export default function Dashboard() {
         await new Promise((resolve) => setTimeout(resolve, 500));
         await loadStats();
       } catch (error) {
-        console.error("❌ Error during initial load:", error);
+        console.error("Error during initial load:", error);
       } finally {
         setIsLoading(false);
       }
@@ -192,20 +186,13 @@ export default function Dashboard() {
 
   const handleToggleTodo = async (id: number) => {
     try {
-      console.log("🔄 Toggling todo ID:", id);
-      
       const response = await fetch(`/api/todos/${id}/toggle`, {
         method: "PATCH",
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error("❌ Toggle failed:", response.status, errorText);
         throw new Error(`Failed to toggle todo: ${response.status}`);
       }
-      
-      const updatedTodo = await response.json();
-      console.log("✅ Toggle successful:", updatedTodo);
 
       // Reload todos and stats
       await loadTodos();
@@ -237,10 +224,6 @@ export default function Dashboard() {
 
   // Handler für Statuswechsel (optimistisch)
   const handleStatusChange = async (id: number, status: "todo" | "in_progress" | "done") => {
-    console.log("🎯 DASHBOARD handleStatusChange called!");
-    console.log("- Todo ID:", id);
-    console.log("- New Status:", status);
-    console.log("- Current todos count:", todos.length);
     
     // Optimistisches Update
     setTodos((prev) => {
@@ -251,12 +234,10 @@ export default function Dashboard() {
           completed: status === "done"
         } : todo
       );
-      console.log("📝 Optimistic update applied, updated todos:", updated.find(t => t.id === id));
       return updated;
     });
     
     try {
-      console.log("🌐 Sending PATCH request to API...");
       const response = await fetch(`/api/todos/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -268,22 +249,18 @@ export default function Dashboard() {
       
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("❌ API request failed:", response.status, errorText);
+        console.error("API request failed:", response.status, errorText);
         throw new Error(`Failed to update status: ${response.status}`);
       }
       
-      const updatedTodo = await response.json();
-      console.log("✅ API request successful, updated todo:", updatedTodo);
+      await response.json();
       
       // Nach erfolgreichem Backend-Update: neu laden (zur Sicherheit)
-      console.log("🔄 Reloading todos and stats...");
       await loadTodos();
       await loadStats();
-      console.log("✅ Reload completed");
     } catch (error) {
-      console.error("❌ Error updating status:", error);
+      console.error("Error updating status:", error);
       // Im Fehlerfall: reload, damit der State wieder stimmt
-      console.log("🔄 Error occurred, reloading todos and stats...");
       await loadTodos();
       await loadStats();
     }
