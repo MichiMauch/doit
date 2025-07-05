@@ -1,0 +1,1 @@
+ALTER TABLE `todos` ADD `estimated_hours` integer;

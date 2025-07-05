@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1751397553441,
+      "tag": "0000_shiny_jetstream",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1751401488673,
+      "tag": "0001_useful_reavers",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1751470773829,
+      "tag": "0002_late_zzzax",
+      "breakpoints": true
+    }
+  ]
+}

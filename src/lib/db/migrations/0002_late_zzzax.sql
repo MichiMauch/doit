@@ -1,0 +1,1 @@
+ALTER TABLE `todos` ADD `status` text DEFAULT 'todo' NOT NULL;
