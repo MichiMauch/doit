@@ -20,6 +20,7 @@ export default function Dashboard() {
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
   const [isStatisticsOpen, setIsStatisticsOpen] = useState(false);
+  const [isSmartSuggestionsOpen, setIsSmartSuggestionsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [stats, setStats] = useState<{
@@ -260,6 +261,7 @@ export default function Dashboard() {
         onNewTodo={handleNewTodo}
         onShowSummary={() => setIsSummaryOpen(true)}
         onShowStatistics={() => setIsStatisticsOpen(true)}
+        onSmartSuggestions={() => setIsSmartSuggestionsOpen(!isSmartSuggestionsOpen)}
         stats={stats || undefined}
       />
 
@@ -267,8 +269,10 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Todo-Liste (2/3 der Breite auf großen Bildschirmen) */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Smart Suggestions */}
-            <SmartSuggestionsBox onCreateTodo={handleSaveTodo} />
+            {/* Smart Suggestions - nur anzeigen wenn geöffnet */}
+            {isSmartSuggestionsOpen && (
+              <SmartSuggestionsBox onCreateTodo={handleSaveTodo} />
+            )}
 
             {/* Todo Liste */}
             <TodoList
@@ -314,6 +318,7 @@ export default function Dashboard() {
         onNewTodo={handleNewTodo}
         onShowSummary={() => setIsSummaryOpen(true)}
         onShowStatistics={() => setIsStatisticsOpen(true)}
+        onSmartSuggestions={() => setIsSmartSuggestionsOpen(!isSmartSuggestionsOpen)}
       />
     </div>
   );

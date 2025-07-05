@@ -2,7 +2,7 @@
 
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
-import { Calendar, Clock, Plus, Filter, Brain, BarChart3 } from "lucide-react";
+import { Calendar, Clock, Plus, Filter, Brain, BarChart3, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -12,6 +12,7 @@ interface TodoHeaderProps {
   onNewTodo: () => void;
   onShowSummary: () => void;
   onShowStatistics: () => void;
+  onSmartSuggestions: () => void;
   stats?: {
     total: number;
     completed: number;
@@ -27,6 +28,7 @@ export function TodoHeader({
   onNewTodo,
   onShowSummary,
   onShowStatistics,
+  onSmartSuggestions,
   stats,
 }: TodoHeaderProps) {
   const today = new Date();
@@ -60,6 +62,14 @@ export function TodoHeader({
 
           {/* Buttons Gruppe - nur auf Desktop sichtbar */}
           <div className="hidden md:flex items-center gap-3">
+            <Button
+              variant="outline"
+              onClick={onSmartSuggestions}
+              className="border-purple-300 text-purple-600 hover:bg-purple-50 shadow-sm"
+            >
+              <Lightbulb className="h-4 w-4 mr-2" />
+              Smart Suggestions
+            </Button>
             <Button
               variant="outline"
               onClick={onShowSummary}
