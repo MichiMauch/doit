@@ -8,6 +8,7 @@ import {
   subDays,
   isAfter,
   isBefore,
+  isWithinInterval,
   startOfDay,
 } from "date-fns";
 import {
@@ -190,24 +191,45 @@ export function StatisticsModal({ isOpen, onClose }: StatisticsModalProps) {
       const lastWeekStart = startOfWeek(subWeeks(now, 1), { weekStartsOn: 1 });
       const lastWeekEnd = endOfWeek(subWeeks(now, 1), { weekStartsOn: 1 });
 
+      // Debug-Logs für Troubleshooting
+      console.log("📊 Statistics Debug:");
+      console.log("- Total todos:", todos.length);
+      console.log("- Completed todos:", todos.filter(t => t.completed).length);
+      console.log("- Current week start:", currentWeekStart.toISOString());
+      console.log("- Current week end:", currentWeekEnd.toISOString());
+      
       // Filtere Aufgaben nach Wochen (basierend auf wann sie erledigt wurden)
       const currentWeekTodos = todos.filter((todo) => {
         if (!todo.completed) return false;
         const completedAt = new Date(todo.updatedAt);
-        return (
-          isAfter(completedAt, currentWeekStart) &&
-          isBefore(completedAt, currentWeekEnd)
-        );
+        const isInCurrentWeek = isWithinInterval(completedAt, {
+          start: currentWeekStart,
+          end: currentWeekEnd,
+        });
+        
+        if (isInCurrentWeek) {
+          console.log("✅ Found current week todo:", {
+            title: todo.title,
+            completedAt: completedAt.toISOString(),
+            updatedAt: todo.updatedAt
+          });
+        }
+        
+        return isInCurrentWeek;
       });
 
       const lastWeekTodos = todos.filter((todo) => {
         if (!todo.completed) return false;
         const completedAt = new Date(todo.updatedAt);
-        return (
-          isAfter(completedAt, lastWeekStart) && isBefore(completedAt, lastWeekEnd)
-        );
+        return isWithinInterval(completedAt, {
+          start: lastWeekStart,
+          end: lastWeekEnd,
+        });
       });
 
+      console.log("📊 Current week todos found:", currentWeekTodos.length);
+      console.log("📊 Last week todos found:", lastWeekTodos.length);
+      
       // Berechne Wochen-Statistiken
       const currentWeek = calculateWeekStats(currentWeekTodos);
       const lastWeek = calculateWeekStats(lastWeekTodos);
