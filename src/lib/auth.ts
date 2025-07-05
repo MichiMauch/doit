@@ -2,6 +2,11 @@ import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { JWT } from "next-auth/jwt";
 
+// Allowed email addresses - only you can access the app
+const ALLOWED_EMAILS = [
+  process.env.ALLOWED_EMAIL || "your-email@example.com", // Add your email to .env.local
+];
+
 async function refreshAccessToken(token: JWT) {
   try {
     const url = "https://oauth2.googleapis.com/token";
@@ -60,9 +65,24 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    async signIn({ user }) {
+      // Check if user email is in allowed list
+      if (user.email && ALLOWED_EMAILS.includes(user.email)) {
+        console.log("🔐 Authorized user signed in:", user.email);
+        return true;
+      }
+      
+      console.log("🚫 Unauthorized access attempt:", user.email);
+      return false; // Deny access
+    },
     async jwt({ token, account, user }) {
       // Initial sign in
       if (account && user) {
+        // Double-check email authorization
+        if (!user.email || !ALLOWED_EMAILS.includes(user.email)) {
+          throw new Error("Unauthorized access");
+        }
+        
         console.log("🔐 Initial Google sign-in, storing tokens");
         return {
           ...token,

@@ -1,221 +1,152 @@
-# Todo.Me - Persönliche Aufgabenverwaltung
+# DOIT - Private Task Management App
 
-Eine minimalistische, reaktionsschnelle und ästhetische Todo-App für Einzelpersonen, entwickelt mit Next.js 14+ und Tailwind CSS.
+A powerful, private task management application built with Next.js, featuring Google Calendar integration, AI-powered suggestions, and a modern design system.
 
-## 🌟 Features
+## 🚀 Features
 
-### 📋 Kernfunktionalitäten
+- **Private Access Control**: Only authorized users can access the app
+- **Google Calendar Integration**: Sync with your calendar events
+- **AI-Powered Smart Suggestions**: Get intelligent task recommendations
+- **Modern Design System**: Beautiful UI with Orange primary color and custom fonts
+- **Responsive Design**: Works perfectly on desktop and mobile
+- **Task Management**: Priority levels, status tracking, drag & drop
+- **Design System Showcase**: View all components at `/design-system`
 
-- **Intuitive Aufgabenverwaltung**: Erstellen, Bearbeiten, Markieren und Löschen von Aufgaben
-- **Prioritätssystem**: Niedrig, Mittel, Hoch mit visuellen Indikatoren
-- **Flexible Zeitplanung**: Fälligkeitsdatum und Uhrzeit für Aufgaben
-- **Tag-System**: Organisiere Aufgaben mit benutzerdefinierten Tags
-- **Smart Filtering**: Filter nach Heute, Woche oder Alle Aufgaben
+## 🔐 Security
 
-### 🎨 Benutzeroberfläche
+This app is designed for **personal use only**. Access is controlled via:
+- Google OAuth authentication
+- Email whitelist (only your email address)
+- All routes are protected by middleware
 
-- **Responsive Design**: Optimiert für Desktop und Mobile
-- **Moderne UI**: Gebaut mit Tailwind CSS und Radix UI Komponenten
-- **Klare Hierarchie**: Überfällige, offene und erledigte Aufgaben getrennt dargestellt
-- **Live-Statistiken**: Übersicht über Fortschritt und Produktivität
+## 🛠️ Setup
 
-### 🔧 Technische Features
-
-- **TypeScript**: Vollständig typisiert für bessere Entwicklererfahrung
-- **Turso SQLite**: Schnelle, skalierbare Datenbank in der Cloud
-- **Server Components**: Optimierte Performance mit Next.js App Router
-- **Real-time Updates**: Sofortige UI-Updates bei Änderungen
-
-## 🚀 Installation & Setup
-
-### Voraussetzungen
-
-- Node.js 18+
-- npm oder yarn
-- Turso Account und Datenbank
-
-### 1. Repository klonen
+### 1. Clone & Install
 
 ```bash
-git clone <repository-url>
-cd todo.me2
-```
-
-### 2. Abhängigkeiten installieren
-
-```bash
+git clone git@github.com:MichiMauch/doit.git
+cd doit
 npm install
 ```
 
-### 3. Umgebungsvariablen konfigurieren
+### 2. Environment Configuration
 
-Erstelle eine `.env.local` Datei mit:
-
+Copy the example environment file:
 ```bash
-# Turso Database Configuration
-TURSO_DATABASE_URL=your_turso_database_url
-TURSO_AUTH_TOKEN=your_turso_auth_token
-
-# Next.js Configuration
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+cp .env.example .env.local
 ```
 
-### 4. Datenbank initialisieren
+Edit `.env.local` with your values:
+
+```env
+# NextAuth Configuration
+NEXTAUTH_URL=http://localhost:3001
+NEXTAUTH_SECRET=your-nextauth-secret-here
+
+# Google OAuth
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+
+# IMPORTANT: Add YOUR email address here
+ALLOWED_EMAIL=your-email@gmail.com
+
+# Database (LibSQL/Turso)
+DATABASE_URL=your-database-url
+DATABASE_AUTH_TOKEN=your-database-auth-token
+
+# OpenAI (for smart suggestions)
+OPENAI_API_KEY=your-openai-api-key
+```
+
+### 3. Google OAuth Setup
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select existing
+3. Enable Google Calendar API
+4. Create OAuth 2.0 credentials
+5. Add authorized redirect URIs:
+   - `http://localhost:3001/api/auth/callback/google`
+   - Your production domain callback URL
+
+### 4. Database Setup
+
+The app uses LibSQL (Turso) for the database:
+
+1. Sign up at [Turso](https://turso.tech/)
+2. Create a database
+3. Get your DATABASE_URL and AUTH_TOKEN
+4. Run migrations:
 
 ```bash
-# Starte den Entwicklungsserver
+npm run db:push
+```
+
+### 5. Run the Application
+
+```bash
 npm run dev
-
-# Initialisiere die Datenbank (einmalig)
-curl -X POST http://localhost:3000/api/init
 ```
 
-### 5. App verwenden
+Open [http://localhost:3001](http://localhost:3001) to access the app.
 
-Öffne http://localhost:3000 in deinem Browser.
+## 🎨 Design System
 
-## 📱 Verwendung
+Visit `/design-system` to view all UI components and design tokens used throughout the application.
 
-### Neue Aufgabe erstellen
+### Fonts Used
+- **Audiowide**: App title "DOIT"
+- **Red Hat Display**: All other text
 
-1. Klicke auf "Neue Aufgabe" Button
-2. Fülle Titel, Beschreibung, Priorität und Fälligkeitsdatum aus
-3. Füge Tags hinzu für bessere Organisation
-4. Speichere die Aufgabe
+### Color Scheme
+- Primary: Orange (#FFA534)
+- Success: Green
+- Warning: Yellow
+- Danger: Red
+- Neutral: Gray scale
 
-### Aufgaben verwalten
+## 📱 Usage
 
-- **Erledigen**: Checkbox anklicken
-- **Bearbeiten**: Über das Drei-Punkte-Menü
-- **Löschen**: Über das Drei-Punkte-Menü
-- **Filtern**: Verwende die Filter-Buttons (Heute, Woche, Alle)
+1. **Sign In**: Use your authorized Google account
+2. **Create Tasks**: Add tasks with priorities and due dates
+3. **Manage Status**: Todo → In Progress → Done
+4. **Calendar Integration**: View and sync with Google Calendar
+5. **Smart Suggestions**: Get AI-powered task recommendations
 
-### Organisation
+## 🔧 Development
 
-- **Tags**: Erstelle benutzerdefinierte Tags zur Kategorisierung
-- **Prioritäten**: Setze Wichtigkeit (Niedrig, Mittel, Hoch)
-- **Fälligkeitsdaten**: Plane Aufgaben für bestimmte Termine
-
-## 🏗️ Architektur
-
-### Frontend
-
-- **Next.js 14+**: React Framework mit App Router
-- **TypeScript**: Statische Typisierung
-- **Tailwind CSS**: Utility-first CSS Framework
-- **Radix UI**: Accessible UI Komponenten
-- **Lucide React**: Moderne Icon Library
-
-### Backend
-
-- **API Routes**: Next.js Server-seitige API
-- **Drizzle ORM**: Type-safe SQL Query Builder
-- **Turso**: SQLite-kompatible Cloud-Datenbank
-
-### Datenbankschema
-
-```sql
--- Aufgaben
-todos (
-  id, title, description, completed, priority,
-  due_date, tags, calendar_linked, email_source,
-  created_at, updated_at
-)
-
--- Tags
-tags (id, name, color, created_at)
-
--- Einstellungen
-settings (id, key, value, updated_at)
-```
-
-## 🔮 Geplante Erweiterungen
-
-### Integrationen
-
-- [ ] **Kalender-Sync**: Google Calendar, Outlook, CalDAV
-- [ ] **E-Mail-Integration**: Aufgaben aus E-Mails erstellen
-- [ ] **Benachrichtigungen**: Browser-Notifications für Erinnerungen
-
-### Erweiterte Features
-
-- [ ] **Wiederkehrende Aufgaben**: Daily/Weekly/Monthly Wiederholungen
-- [ ] **Subtasks**: Aufgaben in kleinere Schritte unterteilen
-- [ ] **Zeiterfassung**: Track Zeit für Aufgaben
-- [ ] **Anhänge**: Dateien zu Aufgaben hinzufügen
-
-### AI & Automation
-
-- [ ] **Smart Suggestions**: KI-basierte Aufgabenvorschläge
-- [ ] **Auto-Kategorisierung**: Automatisches Tagging
-- [ ] **Sprachsteuerung**: Voice-to-Text für Aufgabenerstellung
-- [ ] **Produktivitäts-Insights**: Analyse von Arbeitsmustern
-
-### UI/UX Verbesserungen
-
-- [ ] **Dark Mode**: Vollständige Dark Mode Unterstützung
-- [ ] **Keyboard Shortcuts**: Schnelle Navigation per Tastatur
-- [ ] **Bulk Operations**: Mehrere Aufgaben gleichzeitig bearbeiten
-- [ ] **Drag & Drop**: Intuitive Reorganisation
-- [ ] **Export/Import**: Backup und Migration
-
-## 🛠️ Development
-
-### Projekt starten
+### Available Scripts
 
 ```bash
-npm run dev          # Entwicklungsserver
-npm run build        # Produktions-Build
-npm run start        # Produktionsserver
-npm run lint         # Code-Qualität prüfen
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run start        # Start production server
+npm run lint         # Run ESLint
+npm run db:generate  # Generate database migrations
+npm run db:push      # Push schema changes
+npm run db:studio    # Open database studio
 ```
 
-### Datenbank-Operationen
-
-```bash
-npx drizzle-kit generate    # Migrationen generieren
-npx drizzle-kit push        # Schema zur DB pushen
-npx drizzle-kit studio      # DB-Studio öffnen
-```
-
-### Code-Struktur
+### Project Structure
 
 ```
 src/
 ├── app/                 # Next.js App Router
-│   ├── api/            # API Routes
-│   ├── globals.css     # Globale Styles
-│   ├── layout.tsx      # Root Layout
-│   └── page.tsx        # Home Page
-├── components/         # React Komponenten
-│   ├── todo/          # Todo-spezifische Komponenten
-│   └── ui/            # Wiederverwendbare UI Komponenten
-├── lib/               # Utilities & Services
-│   ├── db/            # Datenbank-Layer
-│   └── utils.ts       # Helper Functions
-└── dashboard.tsx      # Haupt-Dashboard
+├── components/          # React components
+├── lib/                 # Utilities and configurations
+├── hooks/              # Custom React hooks
+└── types/              # TypeScript types
 ```
 
-## 🤝 Contributing
+## 🚀 Deployment
 
-1. Fork das Repository
-2. Erstelle einen Feature Branch (`git checkout -b feature/amazing-feature`)
-3. Committe deine Änderungen (`git commit -m 'Add amazing feature'`)
-4. Push zum Branch (`git push origin feature/amazing-feature`)
-5. Öffne einen Pull Request
+The app can be deployed on Vercel, Netlify, or any platform supporting Next.js.
 
-## 📄 Lizenz
+**Important**: Update your environment variables and redirect URIs for production!
 
-Dieses Projekt ist für private Nutzung gedacht. Alle Rechte vorbehalten.
+## 📄 License
 
-## 🙏 Danksagungen
-
-- **Vercel** - Hosting und Deployment Platform
-- **Turso** - SQLite Cloud Database
-- **Radix UI** - Accessible Component Primitives
-- **Tailwind CSS** - Utility-first CSS Framework
-- **Lucide** - Beautiful Icon Set
+This is a private application for personal use.
 
 ---
 
-**Todo.Me** - Deine persönliche Produktivitätszentrale 🚀
+Built with ❤️ using Next.js, NextAuth, Tailwind CSS, and modern web technologies.

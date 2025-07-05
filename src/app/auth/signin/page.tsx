@@ -2,7 +2,7 @@
 
 import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { Calendar, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 export default function SignIn() {
@@ -17,17 +17,20 @@ export default function SignIn() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
         <div className="text-center mb-6">
-          <Calendar className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900">Google Calendar</h1>
+          <div className="text-6xl mb-4">📋</div>
+          <h1 className="text-3xl font-bold text-gray-900 font-audiowide tracking-wider">DOIT</h1>
           <p className="text-gray-600 mt-2">
-            Melden Sie sich an, um Ihre Kalender-Termine zu sehen
+            Private Task Management App
+          </p>
+          <p className="text-sm text-warning-700 mt-2 bg-warning-50 border border-warning-200 rounded-lg p-3">
+            <strong>Hinweis:</strong> Diese App ist privat und nur für autorisierte Benutzer zugänglich.
           </p>
         </div>
 
         <div className="space-y-4">
           <Button
             onClick={handleGoogleSignIn}
-            className="w-full bg-blue-600 hover:bg-blue-700"
+            className="w-full bg-primary-400 hover:bg-primary-500"
             size="lg"
           >
             <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
@@ -54,7 +57,7 @@ export default function SignIn() {
           <div className="text-center">
             <Link
               href="/"
-              className="text-blue-600 hover:text-blue-700 flex items-center justify-center gap-2"
+              className="text-primary-600 hover:text-primary-700 flex items-center justify-center gap-2"
             >
               <ArrowLeft className="h-4 w-4" />
               Zurück zur App
@@ -63,8 +66,8 @@ export default function SignIn() {
         </div>
 
         <div className="mt-6 text-xs text-gray-500 text-center">
-          <p>Wir verwenden nur Lesezugriff auf Ihren Kalender.</p>
-          <p>Ihre Daten werden nicht gespeichert oder weitergegeben.</p>
+          <p>Diese App integriert sich mit Google Calendar für Terminsynchronisation.</p>
+          <p>Nur autorisierte Benutzer können sich anmelden.</p>
         </div>
       </div>
     </div>
