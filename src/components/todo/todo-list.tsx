@@ -91,28 +91,15 @@ export function TodoList({
                 </div>
                 <div className="space-y-3">
                   {todoTodos.map((todo, idx) => (
-                    <Draggable key={todo.id} draggableId={todo.id.toString()} index={idx}>
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          style={{
-                            ...provided.draggableProps.style,
-                            opacity: snapshot.isDragging ? 0.7 : 1,
-                            cursor: snapshot.isDragging ? "grabbing" : "grab",
-                          }}
-                        >
-                          <TodoItem
-                            todo={todo}
-                            onToggle={onToggle}
-                            onEdit={onEdit}
-                            onDelete={onDelete}
-                            onStatusChange={onStatusChange}
-                          />
-                        </div>
-                      )}
-                    </Draggable>
+                    <div key={todo.id}>
+                      <TodoItem
+                        todo={todo}
+                        onToggle={onToggle}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                        onStatusChange={onStatusChange}
+                      />
+                    </div>
                   ))}
                   {provided.placeholder}
                 </div>
@@ -131,28 +118,15 @@ export function TodoList({
                 </div>
                 <div className="space-y-3">
                   {inProgressTodos.map((todo, idx) => (
-                    <Draggable key={todo.id} draggableId={todo.id.toString()} index={idx}>
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          style={{
-                            ...provided.draggableProps.style,
-                            opacity: snapshot.isDragging ? 0.7 : 1,
-                            cursor: snapshot.isDragging ? "grabbing" : "grab",
-                          }}
-                        >
-                          <TodoItem
-                            todo={todo}
-                            onToggle={onToggle}
-                            onEdit={onEdit}
-                            onDelete={onDelete}
-                            onStatusChange={onStatusChange}
-                          />
-                        </div>
-                      )}
-                    </Draggable>
+                    <div key={todo.id}>
+                      <TodoItem
+                        todo={todo}
+                        onToggle={onToggle}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                        onStatusChange={onStatusChange}
+                      />
+                    </div>
                   ))}
                   {provided.placeholder}
                 </div>
