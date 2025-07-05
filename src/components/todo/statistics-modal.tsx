@@ -5,6 +5,7 @@ import {
   startOfWeek,
   endOfWeek,
   subWeeks,
+  subDays,
   isAfter,
   isBefore,
   startOfDay,
@@ -80,45 +81,71 @@ const calculateWeekStats = (todos: Todo[]): WeekStats => {
 const calculateStreaks = (
   todos: Todo[]
 ): { currentStreak: number; longestStreak: number } => {
-  const completedTodos = todos
-    .filter((todo) => todo.completed && todo.updatedAt)
-    .sort(
-      (a, b) =>
-        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-    );
+  const completedTodos = todos.filter((todo) => todo.completed && todo.updatedAt);
+  
+  if (completedTodos.length === 0) {
+    return { currentStreak: 0, longestStreak: 0 };
+  }
 
+  // Gruppiere erledigte Todos nach Tagen
+  const dayGroups = new Map<string, number>();
+  
+  completedTodos.forEach(todo => {
+    const dayKey = startOfDay(new Date(todo.updatedAt)).toISOString().split('T')[0];
+    dayGroups.set(dayKey, (dayGroups.get(dayKey) || 0) + 1);
+  });
+
+  // Sortiere Tage chronologisch
+  const sortedDays = Array.from(dayGroups.keys()).sort();
+  
   let currentStreak = 0;
   let longestStreak = 0;
   let tempStreak = 0;
-  let lastDate: Date | null = null;
+  
+  const today = startOfDay(new Date()).toISOString().split('T')[0];
+  const yesterday = startOfDay(subDays(new Date(), 1)).toISOString().split('T')[0];
 
-  for (const todo of completedTodos) {
-    const todoDate = startOfDay(new Date(todo.updatedAt));
-
-    if (!lastDate) {
-      tempStreak = 1;
-      if (todoDate.toDateString() === startOfDay(new Date()).toDateString()) {
-        currentStreak = 1;
-      }
-    } else {
+  // Berechne Streaks
+  for (let i = 0; i < sortedDays.length; i++) {
+    const currentDay = sortedDays[i];
+    const prevDay = i > 0 ? sortedDays[i - 1] : null;
+    
+    if (prevDay) {
       const daysDiff = Math.abs(
-        (todoDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24)
+        (new Date(currentDay).getTime() - new Date(prevDay).getTime()) / (1000 * 60 * 60 * 24)
       );
-
-      if (daysDiff <= 1) {
+      
+      if (daysDiff === 1) {
         tempStreak++;
-        if (currentStreak > 0) currentStreak++;
       } else {
         longestStreak = Math.max(longestStreak, tempStreak);
         tempStreak = 1;
-        if (currentStreak > 0) currentStreak = 0;
+      }
+    } else {
+      tempStreak = 1;
+    }
+  }
+  
+  longestStreak = Math.max(longestStreak, tempStreak);
+  
+  // Berechne aktuellen Streak (muss bis heute oder gestern gehen)
+  const lastDay = sortedDays[sortedDays.length - 1];
+  if (lastDay === today || lastDay === yesterday) {
+    // Zähle rückwärts von heute/gestern
+    currentStreak = 1;
+    for (let i = sortedDays.length - 2; i >= 0; i--) {
+      const daysDiff = Math.abs(
+        (new Date(sortedDays[i + 1]).getTime() - new Date(sortedDays[i]).getTime()) / (1000 * 60 * 60 * 24)
+      );
+      
+      if (daysDiff === 1) {
+        currentStreak++;
+      } else {
+        break;
       }
     }
-
-    lastDate = todoDate;
   }
 
-  longestStreak = Math.max(longestStreak, tempStreak);
   return { currentStreak, longestStreak };
 };
 
@@ -163,19 +190,21 @@ export function StatisticsModal({ isOpen, onClose }: StatisticsModalProps) {
       const lastWeekStart = startOfWeek(subWeeks(now, 1), { weekStartsOn: 1 });
       const lastWeekEnd = endOfWeek(subWeeks(now, 1), { weekStartsOn: 1 });
 
-      // Filtere Aufgaben nach Wochen
+      // Filtere Aufgaben nach Wochen (basierend auf wann sie erledigt wurden)
       const currentWeekTodos = todos.filter((todo) => {
-        const createdAt = new Date(todo.createdAt);
+        if (!todo.completed) return false;
+        const completedAt = new Date(todo.updatedAt);
         return (
-          isAfter(createdAt, currentWeekStart) &&
-          isBefore(createdAt, currentWeekEnd)
+          isAfter(completedAt, currentWeekStart) &&
+          isBefore(completedAt, currentWeekEnd)
         );
       });
 
       const lastWeekTodos = todos.filter((todo) => {
-        const createdAt = new Date(todo.createdAt);
+        if (!todo.completed) return false;
+        const completedAt = new Date(todo.updatedAt);
         return (
-          isAfter(createdAt, lastWeekStart) && isBefore(createdAt, lastWeekEnd)
+          isAfter(completedAt, lastWeekStart) && isBefore(completedAt, lastWeekEnd)
         );
       });
 
@@ -194,20 +223,26 @@ export function StatisticsModal({ isOpen, onClose }: StatisticsModalProps) {
       const { currentStreak, longestStreak } = calculateStreaks(todos);
 
       // Durchschnittliche Aufgaben pro Tag (basierend auf erledigten Aufgaben)
+      // Finde das älteste und neueste Datum für korrekte Berechnung
+      const allDates = todos
+        .filter(todo => todo.completed)
+        .map(todo => new Date(todo.updatedAt))
+        .sort((a, b) => a.getTime() - b.getTime());
+      
       const daysWithData = Math.max(
         1,
-        Math.ceil(
-          (now.getTime() - new Date(todos[0]?.createdAt || now).getTime()) /
-            (1000 * 60 * 60 * 24)
-        )
+        allDates.length > 0 
+          ? Math.ceil((now.getTime() - allDates[0].getTime()) / (1000 * 60 * 60 * 24)) + 1
+          : 1
       );
       const averageTasksPerDay = totalCompleted / daysWithData;
 
-      // Prioritätsverteilung
+      // Prioritätsverteilung (nur erledigte Aufgaben)
+      const completedTodos = todos.filter(todo => todo.completed);
       const priorityDistribution = {
-        high: todos.filter((todo) => todo.priority === "high").length,
-        medium: todos.filter((todo) => todo.priority === "medium").length,
-        low: todos.filter((todo) => todo.priority === "low").length,
+        high: completedTodos.filter((todo) => todo.priority === "high").length,
+        medium: completedTodos.filter((todo) => todo.priority === "medium").length,
+        low: completedTodos.filter((todo) => todo.priority === "low").length,
       };
 
       return {
