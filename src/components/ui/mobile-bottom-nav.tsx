@@ -20,6 +20,18 @@ export function MobileBottomNav({
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg md:hidden">
       <div className="grid grid-cols-4 h-16 px-2">
+        {/* Neue Aufgabe Button (hervorgehoben) - ganz links */}
+        <Button
+          onClick={onNewTodo}
+          className={cn(
+            "h-12 w-12 rounded-full mx-auto mt-2 shadow-lg",
+            "bg-primary-400 hover:bg-primary-500 text-white",
+            "flex items-center justify-center transition-all duration-200 hover:scale-105"
+          )}
+        >
+          <Plus className="h-6 w-6" />
+        </Button>
+
         {/* Smart Suggestions Button */}
         <Button
           variant="ghost"
@@ -44,18 +56,6 @@ export function MobileBottomNav({
         >
           <Brain className="h-5 w-5" />
           <span className="text-xs font-medium">KI</span>
-        </Button>
-
-        {/* Neue Aufgabe Button (hervorgehoben) */}
-        <Button
-          onClick={onNewTodo}
-          className={cn(
-            "h-12 w-12 rounded-full mx-auto mt-2 shadow-lg",
-            "bg-primary-400 hover:bg-primary-500 text-white",
-            "flex items-center justify-center transition-all duration-200 hover:scale-105"
-          )}
-        >
-          <Plus className="h-6 w-6" />
         </Button>
 
         {/* Statistiken Button */}
