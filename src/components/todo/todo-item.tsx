@@ -68,13 +68,13 @@ export function TodoItem({
   const getPriorityGradient = (priority: string) => {
     switch (priority) {
       case "high":
-        return "bg-gradient-to-r from-danger-200/30 to-white";
+        return "bg-gradient-to-r from-danger-200/30 to-white dark:from-danger-900/20 dark:to-gray-800";
       case "medium":
-        return "bg-gradient-to-r from-warning-200/30 to-white";
+        return "bg-gradient-to-r from-warning-200/30 to-white dark:from-warning-900/20 dark:to-gray-800";
       case "low":
-        return "bg-gradient-to-r from-success-200/30 to-white";
+        return "bg-gradient-to-r from-success-200/30 to-white dark:from-success-900/20 dark:to-gray-800";
       default:
-        return "bg-gradient-to-r from-gray-200/30 to-white";
+        return "bg-gradient-to-r from-gray-200/30 to-white dark:from-gray-700/20 dark:to-gray-800";
     }
   };
 
@@ -163,9 +163,9 @@ export function TodoItem({
   return (
     <div
       className={cn(
-        "group border rounded-lg p-4 transition-all duration-200 hover:shadow-md",
+        "group border dark:border-gray-700 rounded-lg p-4 transition-all duration-200 hover:shadow-md dark:hover:shadow-lg",
         todo.completed
-          ? "bg-gray-50 opacity-75"
+          ? "bg-gray-50 dark:bg-gray-800 opacity-75"
           : getPriorityGradient(todo.priority || "medium"),
         "border-l-4",
         todo.completed
@@ -197,8 +197,8 @@ export function TodoItem({
             <div className="flex-1 min-w-0">
               <h3
                 className={cn(
-                  "font-medium text-sm sm:text-base leading-tight",
-                  todo.completed && "line-through text-gray-500"
+                  "font-medium text-sm sm:text-base leading-tight text-gray-900 dark:text-gray-100",
+                  todo.completed && "line-through text-gray-500 dark:text-gray-400"
                 )}
               >
                 {todo.title}
@@ -231,9 +231,9 @@ export function TodoItem({
               {dragHandleProps && (
                 <div
                   {...dragHandleProps}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
                 >
-                  <GripVertical className="h-4 w-4 text-gray-400" />
+                  <GripVertical className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                 </div>
               )}
               

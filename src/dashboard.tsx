@@ -267,7 +267,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-16 md:pb-0">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-16 md:pb-0">
       {/* pb-16 für Mobile Bottom Nav */}
       <TodoHeader
         currentFilter={filter}
