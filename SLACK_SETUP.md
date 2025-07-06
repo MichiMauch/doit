@@ -68,10 +68,10 @@ Du bekommst eine Bestätigung und die Aufgabe wird in DOIT erstellt - mit Fälli
 
 - ✅ **Slash Command** `/todo` in jedem Channel
 - ✅ **Datum-Parsing** - Unterstützt verschiedene Formate:
-  - `DD.MM.YYYY HH:MM` (z.B. `08.07.2025 14:30`)
-  - `DD.MM.YYYY` (z.B. `08.07.2025`)
-  - `DD.MM HH:MM` (z.B. `25.03 14:30` - aktuelles Jahr)
-  - `DD.MM` (z.B. `25.03` - aktuelles Jahr, 17:00)
+  - `DD.MM.YYYY HH:MM` (z.B. `08.07.2025 14:30`) - mit Uhrzeit
+  - `DD.MM.YYYY` (z.B. `08.07.2025`) - nur Datum, keine Uhrzeit
+  - `DD.MM HH:MM` (z.B. `25.03 14:30` - aktuelles Jahr) - mit Uhrzeit
+  - `DD.MM` (z.B. `25.03` - aktuelles Jahr) - nur Datum, keine Uhrzeit
 - ✅ **Sofortige Bestätigung** mit Link zur App
 - ✅ **Sichere Verifikation** über Slack Signing Secret
 - ✅ **Kontext Information** (Erstellt von wem, in welchem Channel)

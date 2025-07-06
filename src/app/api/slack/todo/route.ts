@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { todos } from "@/lib/db/schema";
 
 // Funktion zum Parsen von Task-Text mit Datum
-function parseTaskWithDate(text: string): { title: string; dueDate: Date | null; originalText: string } {
+function parseTaskWithDate(text: string): { title: string; dueDate: Date | null; hasTime: boolean; originalText: string } {
   const originalText = text;
   
   // Regex für verschiedene Datumsformate
@@ -20,6 +20,7 @@ function parseTaskWithDate(text: string): { title: string; dueDate: Date | null;
 
   let title = text;
   let dueDate: Date | null = null;
+  let hasTime = false;
 
   for (const pattern of datePatterns) {
     const match = text.match(pattern);
@@ -27,20 +28,24 @@ function parseTaskWithDate(text: string): { title: string; dueDate: Date | null;
       // Entferne das Datum aus dem Titel
       title = text.replace(pattern, '').trim();
       
-      let day: number, month: number, year: number, hours = 17, minutes = 0; // Standard: 17:00
+      let day: number, month: number, year: number;
+      let hours: number | null = null;
+      let minutes: number | null = null;
       
       if (match.length === 6) {
         // DD.MM.YYYY HH:MM
         [, day, month, year, hours, minutes] = match.map(Number);
+        hasTime = true;
       } else if (match.length === 4) {
-        // DD.MM.YYYY
+        // DD.MM.YYYY (nur Datum, keine Zeit)
         [, day, month, year] = match.map(Number);
       } else if (match.length === 5) {
         // DD.MM HH:MM
         [, day, month, hours, minutes] = match.map(Number);
         year = new Date().getFullYear();
+        hasTime = true;
       } else if (match.length === 3) {
-        // DD.MM
+        // DD.MM (nur Datum, keine Zeit)
         [, day, month] = match.map(Number);
         year = new Date().getFullYear();
       } else {
@@ -49,7 +54,17 @@ function parseTaskWithDate(text: string): { title: string; dueDate: Date | null;
       
       // Validiere das Datum
       if (day >= 1 && day <= 31 && month >= 1 && month <= 12) {
-        dueDate = new Date(year, month - 1, day, hours, minutes);
+        if (hasTime && hours !== null && minutes !== null) {
+          // Mit Zeit: Verwende lokale Zeitzone korrekt
+          dueDate = new Date();
+          dueDate.setFullYear(year, month - 1, day);
+          dueDate.setHours(hours, minutes, 0, 0);
+        } else {
+          // Ohne Zeit: Nur Datum, keine spezifische Uhrzeit
+          dueDate = new Date();
+          dueDate.setFullYear(year, month - 1, day);
+          dueDate.setHours(0, 0, 0, 0); // Mitternacht als neutraler Zeitpunkt
+        }
         
         // Überprüfe ob das Datum gültig ist
         if (dueDate.getDate() !== day || dueDate.getMonth() !== month - 1) {
@@ -61,7 +76,7 @@ function parseTaskWithDate(text: string): { title: string; dueDate: Date | null;
     }
   }
 
-  return { title, dueDate, originalText };
+  return { title, dueDate, hasTime, originalText };
 }
 
 // Slack signing secret für Verifikation
@@ -132,7 +147,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Parse task and date from text
-    const { title, dueDate } = parseTaskWithDate(text.trim());
+    const { title, dueDate, hasTime } = parseTaskWithDate(text.trim());
 
     // Create todo in database
     const newTodo = await db.insert(todos).values({
@@ -149,14 +164,21 @@ export async function POST(request: NextRequest) {
 
     // Formatiere die Antwort basierend auf ob ein Datum erkannt wurde
     const dueDateText = dueDate 
-      ? `\n📅 *Fällig:* ${dueDate.toLocaleDateString('de-DE', { 
-          weekday: 'long', 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        })}`
+      ? hasTime 
+        ? `\n📅 *Fällig:* ${dueDate.toLocaleDateString('de-DE', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          })}`
+        : `\n📅 *Fällig:* ${dueDate.toLocaleDateString('de-DE', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric'
+          })}`
       : '';
 
     // Return success response to Slack
