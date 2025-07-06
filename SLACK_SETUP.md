@@ -63,6 +63,9 @@ SLACK_ALLOWED_CHANNELS=directmessage
 
 # Beispiel für nur dich selbst
 SLACK_ALLOWED_USERS=dein-slack-username
+
+# WICHTIG: Beide Bedingungen müssen erfüllt sein (UND-Verknüpfung)
+# Wenn beide gesetzt sind, muss sowohl Channel ALS AUCH User erlaubt sein
 ```
 
 Das Signing Secret findest du unter **Basic Information** → **App Credentials**.
@@ -105,8 +108,10 @@ Du bekommst eine Bestätigung und die Aufgabe wird in DOIT erstellt - mit Fälli
 
 **"Nicht berechtigt" Fehler:**
 - Channel nicht in `SLACK_ALLOWED_CHANNELS` enthalten
-- User nicht in `SLACK_ALLOWED_USERS` enthalten
+- User nicht in `SLACK_ALLOWED_USERS` enthalten  
+- Bei beiden Variablen gesetzt: BEIDE Bedingungen müssen erfüllt sein
 - Für nur private Nachrichten: `SLACK_ALLOWED_CHANNELS=directmessage`
+- Für nur bestimmten User: `SLACK_ALLOWED_USERS=dein-username`
 
 **Teste die API:**
 ```bash

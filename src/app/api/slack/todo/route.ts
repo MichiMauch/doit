@@ -60,10 +60,12 @@ function parseTaskWithDate(text: string): { title: string; dueDate: Date | null;
           dueDate.setFullYear(year, month - 1, day);
           dueDate.setHours(hours, minutes, 0, 0);
         } else {
-          // Ohne Zeit: Nur Datum, keine spezifische Uhrzeit
-          dueDate = new Date();
-          dueDate.setFullYear(year, month - 1, day);
-          dueDate.setHours(0, 0, 0, 0); // Mitternacht als neutraler Zeitpunkt
+          // Ohne Zeit: Setze 00:00 als Signal für "nur Datum, keine Zeit"
+          // Das Frontend kann diese spezielle Zeit erkennen und nur Datum anzeigen
+          const tempDate = new Date();
+          tempDate.setFullYear(year, month - 1, day);
+          tempDate.setHours(0, 0, 0, 0);
+          dueDate = tempDate;
         }
         
         // Überprüfe ob das Datum gültig ist
@@ -93,28 +95,38 @@ function isAuthorized(channelName: string, userName: string): { allowed: boolean
     return { allowed: true };
   }
   
-  // Prüfe erlaubte Channels
+  let channelAllowed = true;
+  let userAllowed = true;
+  
+  // Prüfe erlaubte Channels (nur wenn konfiguriert)
   if (ALLOWED_CHANNELS.length > 0) {
-    const isChannelAllowed = ALLOWED_CHANNELS.includes(channelName) || 
-                            ALLOWED_CHANNELS.includes(`#${channelName}`) ||
-                            ALLOWED_CHANNELS.includes('directmessage') && channelName === 'directmessage';
-    if (isChannelAllowed) {
-      return { allowed: true };
-    }
+    channelAllowed = ALLOWED_CHANNELS.includes(channelName) || 
+                    ALLOWED_CHANNELS.includes(`#${channelName}`) ||
+                    (ALLOWED_CHANNELS.includes('directmessage') && channelName === 'directmessage');
   }
   
-  // Prüfe erlaubte User
+  // Prüfe erlaubte User (nur wenn konfiguriert)
   if (ALLOWED_USERS.length > 0) {
-    const isUserAllowed = ALLOWED_USERS.includes(userName) || 
-                         ALLOWED_USERS.includes(`@${userName}`);
-    if (isUserAllowed) {
-      return { allowed: true };
-    }
+    userAllowed = ALLOWED_USERS.includes(userName) || 
+                 ALLOWED_USERS.includes(`@${userName}`);
+  }
+  
+  // Beide Bedingungen müssen erfüllt sein (UND-Verknüpfung)
+  if (channelAllowed && userAllowed) {
+    return { allowed: true };
+  }
+  
+  const reasons = [];
+  if (!channelAllowed) {
+    reasons.push(`Channel "#${channelName}" nicht erlaubt`);
+  }
+  if (!userAllowed) {
+    reasons.push(`User "${userName}" nicht erlaubt`);
   }
   
   return { 
     allowed: false, 
-    reason: `Channel "#${channelName}" oder User "${userName}" ist nicht berechtigt` 
+    reason: reasons.join(' und ')
   };
 }
 

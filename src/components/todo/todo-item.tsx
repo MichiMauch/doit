@@ -101,25 +101,32 @@ export function TodoItem({
       due.toDateString() ===
       new Date(now.getTime() + 24 * 60 * 60 * 1000).toDateString();
     const isPast = due < now;
+    
+    // Prüfe ob es sich um "nur Datum" handelt (00:00:00)
+    const isDateOnly = due.getHours() === 0 && due.getMinutes() === 0 && due.getSeconds() === 0;
 
     if (isToday) {
       return {
-        text: `Heute, ${format(due, "HH:mm")}`,
+        text: isDateOnly ? "Heute" : `Heute, ${format(due, "HH:mm")}`,
         className: "text-primary-700 bg-primary-50",
       };
     } else if (isTomorrow) {
       return {
-        text: `Morgen, ${format(due, "HH:mm")}`,
+        text: isDateOnly ? "Morgen" : `Morgen, ${format(due, "HH:mm")}`,
         className: "text-success-700 bg-success-50",
       };
     } else if (isPast) {
       return {
-        text: format(due, "dd.MM.yyyy, HH:mm", { locale: de }),
+        text: isDateOnly 
+          ? format(due, "dd.MM.yyyy", { locale: de })
+          : format(due, "dd.MM.yyyy, HH:mm", { locale: de }),
         className: "text-danger-700 bg-danger-50",
       };
     } else {
       return {
-        text: format(due, "dd.MM.yyyy, HH:mm", { locale: de }),
+        text: isDateOnly 
+          ? format(due, "dd.MM.yyyy", { locale: de })
+          : format(due, "dd.MM.yyyy, HH:mm", { locale: de }),
         className: "text-gray-600 bg-gray-50",
       };
     }
