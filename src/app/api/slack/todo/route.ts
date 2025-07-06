@@ -2,6 +2,68 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { todos } from "@/lib/db/schema";
 
+// Funktion zum Parsen von Task-Text mit Datum
+function parseTaskWithDate(text: string): { title: string; dueDate: Date | null; originalText: string } {
+  const originalText = text;
+  
+  // Regex für verschiedene Datumsformate
+  const datePatterns = [
+    // DD.MM.YYYY HH:MM
+    /(\d{1,2})\.(\d{1,2})\.(\d{4})\s+(\d{1,2}):(\d{2})/,
+    // DD.MM.YYYY
+    /(\d{1,2})\.(\d{1,2})\.(\d{4})/,
+    // DD.MM HH:MM (aktuelles Jahr)
+    /(\d{1,2})\.(\d{1,2})\s+(\d{1,2}):(\d{2})/,
+    // DD.MM (aktuelles Jahr)
+    /(\d{1,2})\.(\d{1,2})/,
+  ];
+
+  let title = text;
+  let dueDate: Date | null = null;
+
+  for (const pattern of datePatterns) {
+    const match = text.match(pattern);
+    if (match) {
+      // Entferne das Datum aus dem Titel
+      title = text.replace(pattern, '').trim();
+      
+      let day: number, month: number, year: number, hours = 17, minutes = 0; // Standard: 17:00
+      
+      if (match.length === 6) {
+        // DD.MM.YYYY HH:MM
+        [, day, month, year, hours, minutes] = match.map(Number);
+      } else if (match.length === 4) {
+        // DD.MM.YYYY
+        [, day, month, year] = match.map(Number);
+      } else if (match.length === 5) {
+        // DD.MM HH:MM
+        [, day, month, hours, minutes] = match.map(Number);
+        year = new Date().getFullYear();
+      } else if (match.length === 3) {
+        // DD.MM
+        [, day, month] = match.map(Number);
+        year = new Date().getFullYear();
+      } else {
+        continue; // Kein valider Match, nächstes Pattern versuchen
+      }
+      
+      // Validiere das Datum
+      if (day >= 1 && day <= 31 && month >= 1 && month <= 12) {
+        dueDate = new Date(year, month - 1, day, hours, minutes);
+        
+        // Überprüfe ob das Datum gültig ist
+        if (dueDate.getDate() !== day || dueDate.getMonth() !== month - 1) {
+          dueDate = null; // Ungültiges Datum
+        }
+      }
+      
+      break;
+    }
+  }
+
+  return { title, dueDate, originalText };
+}
+
 // Slack signing secret für Verifikation
 const SLACK_SIGNING_SECRET = process.env.SLACK_SIGNING_SECRET;
 
@@ -65,32 +127,48 @@ export async function POST(request: NextRequest) {
     if (!text.trim()) {
       return NextResponse.json({
         response_type: "ephemeral",
-        text: "❌ Bitte gib eine Aufgabe ein!\n\nBeispiel: `/todo Meeting vorbereiten`",
+        text: "❌ Bitte gib eine Aufgabe ein!\n\nBeispiele:\n• `/todo Meeting vorbereiten`\n• `/todo Report schreiben 08.07.2025`\n• `/todo Präsentation 15.12.2024 14:30`",
       });
     }
 
+    // Parse task and date from text
+    const { title, dueDate } = parseTaskWithDate(text.trim());
+
     // Create todo in database
     const newTodo = await db.insert(todos).values({
-      title: text.trim(),
+      title: title,
       description: `Erstellt via Slack von ${userName} in #${channelName}`,
       completed: false,
       priority: "medium",
+      dueDate: dueDate,
       createdAt: new Date(),
       updatedAt: new Date(),
     }).returning();
 
     console.log(`✅ Todo created via Slack:`, newTodo[0]);
 
+    // Formatiere die Antwort basierend auf ob ein Datum erkannt wurde
+    const dueDateText = dueDate 
+      ? `\n📅 *Fällig:* ${dueDate.toLocaleDateString('de-DE', { 
+          weekday: 'long', 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })}`
+      : '';
+
     // Return success response to Slack
     return NextResponse.json({
       response_type: "ephemeral",
-      text: `✅ Todo erfolgreich erstellt!\n\n📋 *${text.trim()}*\n\n🔗 Sieh dir alle Todos an: https://doit.mauch.rocks`,
+      text: `✅ Todo erfolgreich erstellt!\n\n📋 *${title}*${dueDateText}\n\n🔗 Sieh dir alle Todos an: https://doit.mauch.rocks`,
       blocks: [
         {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `✅ *Todo erfolgreich erstellt!*\n\n📋 ${text.trim()}`,
+            text: `✅ *Todo erfolgreich erstellt!*\n\n📋 ${title}${dueDateText}`,
           },
         },
         {
@@ -124,6 +202,12 @@ export async function GET() {
   return NextResponse.json({ 
     message: "DOIT Slack Integration is running! 🚀",
     endpoint: "POST /api/slack/todo",
-    usage: "/todo <your task description>"
+    usage: [
+      "/todo <task description>",
+      "/todo <task description> 08.07.2025",
+      "/todo <task description> 15.12.2024 14:30",
+      "/todo <task description> 25.03",
+      "/todo <task description> 10.05 09:00"
+    ]
   });
 }

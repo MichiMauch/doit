@@ -2,11 +2,13 @@
 
 ## 🚀 Schnelle Todo-Erstellung via Slack
 
-Mit der Slack Integration kannst du blitzschnell Todos erstellen:
+Mit der Slack Integration kannst du blitzschnell Todos erstellen - auch mit Fälligkeitsdatum:
 ```
 /todo Meeting vorbereiten
-/todo Präsentation fertigstellen
-/todo E-Mails beantworten
+/todo Präsentation fertigstellen 08.07.2025
+/todo E-Mails beantworten 15.12.2024 14:30
+/todo Projekt Review 25.03
+/todo Daily Standup 10.05 09:00
 ```
 
 ## 📋 Setup Schritte
@@ -27,7 +29,7 @@ Mit der Slack Integration kannst du blitzschnell Todos erstellen:
    Command: /todo
    Request URL: https://doit.mauch.rocks/api/slack/todo
    Short Description: Erstelle schnell eine neue Aufgabe
-   Usage Hint: Meeting vorbereiten
+   Usage Hint: Meeting vorbereiten [08.07.2025] [14:30]
    ```
 
 ### 3. Berechtigungen setzen
@@ -56,13 +58,20 @@ Nach dem Setup kannst du in jedem Slack Channel schreiben:
 
 ```
 /todo Projekt Review vorbereiten
+/todo Kundentermin 15.07.2025 10:00
+/todo Wochenplanung 22.03
 ```
 
-Du bekommst eine Bestätigung und die Aufgabe wird in DOIT erstellt!
+Du bekommst eine Bestätigung und die Aufgabe wird in DOIT erstellt - mit Fälligkeitsdatum falls angegeben!
 
 ## ✨ Features
 
 - ✅ **Slash Command** `/todo` in jedem Channel
+- ✅ **Datum-Parsing** - Unterstützt verschiedene Formate:
+  - `DD.MM.YYYY HH:MM` (z.B. `08.07.2025 14:30`)
+  - `DD.MM.YYYY` (z.B. `08.07.2025`)
+  - `DD.MM HH:MM` (z.B. `25.03 14:30` - aktuelles Jahr)
+  - `DD.MM` (z.B. `25.03` - aktuelles Jahr, 17:00)
 - ✅ **Sofortige Bestätigung** mit Link zur App
 - ✅ **Sichere Verifikation** über Slack Signing Secret
 - ✅ **Kontext Information** (Erstellt von wem, in welchem Channel)
