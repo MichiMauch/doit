@@ -3,9 +3,9 @@ import GoogleProvider from "next-auth/providers/google";
 import { JWT } from "next-auth/jwt";
 
 // Allowed email addresses - only you can access the app
-const ALLOWED_EMAILS = [
-  (process.env.ALLOWED_EMAIL || "your-email@example.com").toLowerCase(), // Add your email to .env.local
-];
+const ALLOWED_EMAILS = (process.env.ALLOWED_EMAILS || "your-email@example.com")
+  .split(',')
+  .map(email => email.trim().toLowerCase());
 
 console.log("🔐 Auth config initialized with allowed emails:", ALLOWED_EMAILS);
 console.log("🔐 NEXTAUTH_URL:", process.env.NEXTAUTH_URL);

@@ -1,9 +1,9 @@
 import { withAuth } from "next-auth/middleware";
 
 // Allowed email addresses
-const ALLOWED_EMAILS = [
-  (process.env.ALLOWED_EMAIL || "your-email@example.com").toLowerCase(),
-];
+const ALLOWED_EMAILS = (process.env.ALLOWED_EMAILS || "your-email@example.com")
+  .split(',')
+  .map(email => email.trim().toLowerCase());
 
 export default withAuth(
   {

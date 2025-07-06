@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function GET() {
   // Only show debug info in development or if explicitly enabled
@@ -8,16 +10,22 @@ export async function GET() {
     return NextResponse.json({ message: "Debug mode disabled" }, { status: 403 });
   }
 
+  const session = await getServerSession(authOptions);
+  
+  const allowedEmails = (process.env.ALLOWED_EMAILS || "")
+    .split(',')
+    .map(email => email.trim().toLowerCase());
+
   const debugInfo = {
+    session: session ? {
+      user: session.user,
+      expires: session.expires,
+      hasAccessToken: !!session.accessToken
+    } : null,
+    allowedEmails,
+    userIsAllowed: session?.user?.email ? allowedEmails.includes(session.user.email.toLowerCase()) : false,
     nodeEnv: process.env.NODE_ENV,
     nextauthUrl: process.env.NEXTAUTH_URL,
-    nextauthSecretExists: !!process.env.NEXTAUTH_SECRET,
-    googleClientIdExists: !!process.env.GOOGLE_CLIENT_ID,
-    googleClientSecretExists: !!process.env.GOOGLE_CLIENT_SECRET,
-    allowedEmails: process.env.ALLOWED_EMAILS,
-    allowedEmailsArray: process.env.ALLOWED_EMAILS?.split(',').map(email => email.trim()),
-    databaseUrlExists: !!process.env.TURSO_DATABASE_URL,
-    databaseAuthTokenExists: !!process.env.TURSO_AUTH_TOKEN,
     timestamp: new Date().toISOString(),
   };
 

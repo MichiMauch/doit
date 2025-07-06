@@ -209,7 +209,7 @@ export function CalendarView({
   };
 
   return (
-    <div className={cn("bg-white rounded-lg border p-4 shadow-sm", className)}>
+    <div className={cn("bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 shadow-sm", className)}>
       {/* Auth Error Banner */}
       {!authStatus.authenticated && authStatus.reason && (
         <AuthErrorBanner
@@ -222,8 +222,8 @@ export function CalendarView({
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <CalendarIcon className="h-5 w-5 text-gray-600" />
-          <h3 className="font-medium text-gray-900">Kalender</h3>
+          <CalendarIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+          <h3 className="font-medium text-gray-900 dark:text-gray-100">Kalender</h3>
           {!authStatus.authenticated && (
             <Badge variant="secondary" className="text-xs">
               Mock-Daten
@@ -280,10 +280,10 @@ export function CalendarView({
           </Button>
 
           <div className="text-center">
-            <div className="text-lg font-medium text-gray-900">
+            <div className="text-lg font-medium text-gray-900 dark:text-gray-100">
               {format(currentDate, "EEEE", { locale: de })}
             </div>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-600 dark:text-gray-400">
               {format(currentDate, "dd. MMMM yyyy", { locale: de })}
             </div>
           </div>
@@ -300,9 +300,9 @@ export function CalendarView({
       </div>
 
       {/* Events für den aktuellen Tag */}
-      <div className="mt-4 pt-4 border-t">
+      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between mb-3">
-          <h4 className="text-sm font-medium text-gray-700">Termine heute</h4>
+          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Termine heute</h4>
           {isLoadingEvents && (
             <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
           )}
@@ -313,17 +313,17 @@ export function CalendarView({
             {events.map((event) => (
               <div
                 key={event.id}
-                className="p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
+                className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
-                    <h5 className="font-medium text-sm text-gray-900 truncate">
+                    <h5 className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate">
                       {event.title}
                     </h5>
 
                     <div className="flex items-center gap-1 mt-1">
-                      <Clock className="h-3 w-3 text-gray-500" />
-                      <span className="text-xs text-gray-600">
+                      <Clock className="h-3 w-3 text-gray-500 dark:text-gray-400" />
+                      <span className="text-xs text-gray-600 dark:text-gray-300">
                         {event.isAllDay
                           ? "Ganztägig"
                           : `${format(event.start, "HH:mm")} - ${format(
@@ -335,8 +335,8 @@ export function CalendarView({
 
                     {event.location && (
                       <div className="flex items-center gap-1 mt-1">
-                        <MapPin className="h-3 w-3 text-gray-500" />
-                        <span className="text-xs text-gray-600 truncate">
+                        <MapPin className="h-3 w-3 text-gray-500 dark:text-gray-400" />
+                        <span className="text-xs text-gray-600 dark:text-gray-300 truncate">
                           {event.location}
                         </span>
                       </div>
@@ -344,8 +344,8 @@ export function CalendarView({
 
                     {event.conferenceData && (
                       <div className="flex items-center gap-1 mt-1">
-                        <Video className="h-3 w-3 text-blue-500" />
-                        <span className="text-xs text-blue-600">
+                        <Video className="h-3 w-3 text-blue-500 dark:text-blue-400" />
+                        <span className="text-xs text-blue-600 dark:text-blue-400">
                           Video-Meeting
                         </span>
                       </div>
@@ -366,7 +366,7 @@ export function CalendarView({
                         size="sm"
                         onClick={() => handleDeleteEvent(event)}
                         disabled={deletingEventId === event.id}
-                        className="h-6 w-6 p-0 text-gray-400 hover:text-red-600 hover:bg-red-50"
+                        className="h-6 w-6 p-0 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20"
                         title="Termin löschen"
                       >
                         {deletingEventId === event.id ? (
@@ -382,24 +382,24 @@ export function CalendarView({
             ))}
           </div>
         ) : (
-          <div className="text-xs text-gray-500 text-center py-4">
+          <div className="text-xs text-gray-500 dark:text-gray-400 text-center py-4">
             {isLoadingEvents ? "Lade Termine..." : "Keine Termine für heute"}
           </div>
         )}
       </div>
 
       {/* Google Calendar Status */}
-      <div className="mt-4 pt-4 border-t">
-        <div className="text-xs text-gray-500 space-y-1">
+      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
           <div className="flex items-center gap-2">
             <div className="font-medium">📅 Google Calendar</div>
             {session ? (
               <div className="flex items-center gap-1">
                 <User className="h-3 w-3 text-green-600" />
-                <span className="text-green-600">Verbunden</span>
+                <span className="text-green-600 dark:text-green-400">Verbunden</span>
               </div>
             ) : (
-              <span className="text-orange-600">Nicht verbunden</span>
+              <span className="text-orange-600 dark:text-orange-400">Nicht verbunden</span>
             )}
           </div>
 

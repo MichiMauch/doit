@@ -19,7 +19,9 @@
       "Bash(vercel ls:*)",
       "Bash(vercel:*)",
       "Bash(curl:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(npx vercel logs:*)",
+      "Bash(npx vercel:*)"
     ],
     "deny": []
   }
