@@ -50,6 +50,21 @@ Füge zu Vercel Environment Variables hinzu:
 SLACK_SIGNING_SECRET=dein_slack_signing_secret
 ```
 
+**Optional - Sicherheitsbeschränkungen:**
+```
+# Nur bestimmte Channels erlauben (kommasepariert)
+SLACK_ALLOWED_CHANNELS=mein-privater-channel,directmessage,wichtige-projekte
+
+# Nur bestimmte User erlauben (kommasepariert)
+SLACK_ALLOWED_USERS=michi.mauch,admin
+
+# Beispiel für nur private Nachrichten
+SLACK_ALLOWED_CHANNELS=directmessage
+
+# Beispiel für nur dich selbst
+SLACK_ALLOWED_USERS=dein-slack-username
+```
+
 Das Signing Secret findest du unter **Basic Information** → **App Credentials**.
 
 ## 🎯 Verwendung
@@ -74,6 +89,7 @@ Du bekommst eine Bestätigung und die Aufgabe wird in DOIT erstellt - mit Fälli
   - `DD.MM` (z.B. `25.03` - aktuelles Jahr) - nur Datum, keine Uhrzeit
 - ✅ **Sofortige Bestätigung** mit Link zur App
 - ✅ **Sichere Verifikation** über Slack Signing Secret
+- ✅ **Zugriffskontrolle** - Beschränkung auf bestimmte Channels/User
 - ✅ **Kontext Information** (Erstellt von wem, in welchem Channel)
 - ✅ **Fehlerbehandlung** bei Problemen
 
@@ -86,6 +102,11 @@ Du bekommst eine Bestätigung und die Aufgabe wird in DOIT erstellt - mit Fälli
 **403 Fehler:**
 - Signing Secret falsch oder nicht gesetzt
 - App Berechtigungen prüfen
+
+**"Nicht berechtigt" Fehler:**
+- Channel nicht in `SLACK_ALLOWED_CHANNELS` enthalten
+- User nicht in `SLACK_ALLOWED_USERS` enthalten
+- Für nur private Nachrichten: `SLACK_ALLOWED_CHANNELS=directmessage`
 
 **Teste die API:**
 ```bash

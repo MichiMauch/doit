@@ -82,6 +82,42 @@ function parseTaskWithDate(text: string): { title: string; dueDate: Date | null;
 // Slack signing secret für Verifikation
 const SLACK_SIGNING_SECRET = process.env.SLACK_SIGNING_SECRET;
 
+// Erlaubte Channels und User (Environment Variables)
+const ALLOWED_CHANNELS = process.env.SLACK_ALLOWED_CHANNELS?.split(',').map(c => c.trim()) || [];
+const ALLOWED_USERS = process.env.SLACK_ALLOWED_USERS?.split(',').map(u => u.trim()) || [];
+
+// Funktion zur Überprüfung der Berechtigung
+function isAuthorized(channelName: string, userName: string): { allowed: boolean; reason?: string } {
+  // Wenn keine Beschränkungen konfiguriert sind, erlaube alles
+  if (ALLOWED_CHANNELS.length === 0 && ALLOWED_USERS.length === 0) {
+    return { allowed: true };
+  }
+  
+  // Prüfe erlaubte Channels
+  if (ALLOWED_CHANNELS.length > 0) {
+    const isChannelAllowed = ALLOWED_CHANNELS.includes(channelName) || 
+                            ALLOWED_CHANNELS.includes(`#${channelName}`) ||
+                            ALLOWED_CHANNELS.includes('directmessage') && channelName === 'directmessage';
+    if (isChannelAllowed) {
+      return { allowed: true };
+    }
+  }
+  
+  // Prüfe erlaubte User
+  if (ALLOWED_USERS.length > 0) {
+    const isUserAllowed = ALLOWED_USERS.includes(userName) || 
+                         ALLOWED_USERS.includes(`@${userName}`);
+    if (isUserAllowed) {
+      return { allowed: true };
+    }
+  }
+  
+  return { 
+    allowed: false, 
+    reason: `Channel "#${channelName}" oder User "${userName}" ist nicht berechtigt` 
+  };
+}
+
 // Verifikation des Slack Requests
 async function verifySlackRequest(request: NextRequest, body: string) {
   if (!SLACK_SIGNING_SECRET) {
@@ -136,8 +172,19 @@ export async function POST(request: NextRequest) {
     const text = formData.get("text") || "";
     const userName = formData.get("user_name") || "Slack User";
     const channelName = formData.get("channel_name") || "unknown";
+    const channelId = formData.get("channel_id") || "";
 
-    console.log(`📝 Slack Todo from ${userName} in #${channelName}: "${text}"`);
+    console.log(`📝 Slack Todo from ${userName} in #${channelName} (${channelId}): "${text}"`);
+
+    // Prüfe Berechtigung
+    const authCheck = isAuthorized(channelName, userName);
+    if (!authCheck.allowed) {
+      console.warn(`🚫 Unauthorized Slack todo attempt: ${authCheck.reason}`);
+      return NextResponse.json({
+        response_type: "ephemeral",
+        text: `🚫 Nicht berechtigt!\n\nDu kannst nur aus autorisierten Channels oder als autorisierter User Todos erstellen.\n\n${authCheck.reason}`,
+      });
+    }
 
     if (!text.trim()) {
       return NextResponse.json({
@@ -230,6 +277,11 @@ export async function GET() {
       "/todo <task description> 15.12.2024 14:30",
       "/todo <task description> 25.03",
       "/todo <task description> 10.05 09:00"
-    ]
+    ],
+    security: {
+      allowed_channels: ALLOWED_CHANNELS.length > 0 ? ALLOWED_CHANNELS : "All channels allowed",
+      allowed_users: ALLOWED_USERS.length > 0 ? ALLOWED_USERS : "All users allowed",
+      signing_secret_configured: !!SLACK_SIGNING_SECRET
+    }
   });
 }
