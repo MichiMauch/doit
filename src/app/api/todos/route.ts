@@ -1,12 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { TodoService } from "@/lib/db/service";
 
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const filter = searchParams.get("filter") as "today" | "week" | "all" | null;
     
-    const todos = await TodoService.getTodos(filter || "all");
+    const todos = await TodoService.getTodos(filter || "all", session.user.email);
     return NextResponse.json(todos);
   } catch (error) {
     console.error("Error fetching todos:", error);
@@ -19,6 +27,12 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     
     // Validiere required fields
@@ -29,7 +43,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const todo = await TodoService.createTodo(body);
+    // Füge userEmail automatisch hinzu
+    const todoData = {
+      ...body,
+      userEmail: session.user.email
+    };
+
+    const todo = await TodoService.createTodo(todoData);
     return NextResponse.json(todo, { status: 201 });
   } catch (error) {
     console.error("Error creating todo:", error);

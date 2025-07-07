@@ -39,28 +39,44 @@ export class TodoService {
     return this.parseTodo(result[0]);
   }
 
-  static async getTodos(filter?: "today" | "week" | "all"): Promise<Todo[]> {
-    let whereCondition;
+  static async getTodos(filter?: "today" | "week" | "all", userEmail?: string): Promise<Todo[]> {
+    let whereConditions = [];
     
+    // User filter (if provided)
+    if (userEmail) {
+      whereConditions.push(eq(todos.userEmail, userEmail));
+    }
+    
+    // Date filter
     if (filter === "today") {
       const today = new Date();
       const start = startOfDay(today);
       const end = endOfDay(today);
       
-      whereCondition = or(
-        and(gte(todos.dueDate, start), lte(todos.dueDate, end)),
-        isNull(todos.dueDate)
+      whereConditions.push(
+        or(
+          and(gte(todos.dueDate, start), lte(todos.dueDate, end)),
+          isNull(todos.dueDate)
+        )
       );
     } else if (filter === "week") {
       const today = new Date();
       const start = startOfWeek(today);
       const end = endOfWeek(today);
       
-      whereCondition = or(
-        and(gte(todos.dueDate, start), lte(todos.dueDate, end)),
-        isNull(todos.dueDate)
+      whereConditions.push(
+        or(
+          and(gte(todos.dueDate, start), lte(todos.dueDate, end)),
+          isNull(todos.dueDate)
+        )
       );
     }
+    
+    const whereCondition = whereConditions.length > 0 
+      ? whereConditions.length === 1 
+        ? whereConditions[0] 
+        : and(...whereConditions)
+      : undefined;
     
     const query = whereCondition 
       ? db.select().from(todos).where(whereCondition).orderBy(desc(todos.createdAt))

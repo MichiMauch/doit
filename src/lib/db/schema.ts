@@ -13,6 +13,7 @@ export const todos = sqliteTable("todos", {
   calendarLinked: integer("calendar_linked", { mode: "boolean" }).default(false),
   emailSource: text("email_source"), // E-Mail ID falls aus E-Mail erstellt
   status: text("status", { enum: ["todo", "in_progress", "done"] }).default("todo").notNull(), // NEU: Status-Feld
+  userEmail: text("user_email").notNull(), // NEU: Multi-User Support
   createdAt: integer("created_at", { mode: "timestamp" }).default(sql`(unixepoch())`).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).default(sql`(unixepoch())`).notNull(),
 });
