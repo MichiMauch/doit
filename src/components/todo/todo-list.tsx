@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Clock, AlertCircle } from "lucide-react";
 import { TodoItem } from "./todo-item";
 import { type Todo } from "@/lib/db/schema";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
@@ -90,15 +90,17 @@ export function TodoList({
                   </h2>
                 </div>
                 <div className="space-y-3">
-                  {todoTodos.map((todo, index) => (
-                    <Draggable key={todo.id} draggableId={todo.id.toString()} index={index}>
+                  {todoTodos.map((todo, idx) => (
+                    <Draggable key={todo.id} draggableId={todo.id.toString()} index={idx}>
                       {(provided, snapshot) => (
                         <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
+                          {...provided.dragHandleProps}
                           style={{
                             ...provided.draggableProps.style,
                             opacity: snapshot.isDragging ? 0.7 : 1,
+                            cursor: snapshot.isDragging ? "grabbing" : "grab",
                           }}
                         >
                           <TodoItem
@@ -107,7 +109,6 @@ export function TodoList({
                             onEdit={onEdit}
                             onDelete={onDelete}
                             onStatusChange={onStatusChange}
-                            dragHandleProps={provided.dragHandleProps}
                           />
                         </div>
                       )}
@@ -129,15 +130,17 @@ export function TodoList({
                   </h2>
                 </div>
                 <div className="space-y-3">
-                  {inProgressTodos.map((todo, index) => (
-                    <Draggable key={todo.id} draggableId={todo.id.toString()} index={index}>
+                  {inProgressTodos.map((todo, idx) => (
+                    <Draggable key={todo.id} draggableId={todo.id.toString()} index={idx}>
                       {(provided, snapshot) => (
                         <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
+                          {...provided.dragHandleProps}
                           style={{
                             ...provided.draggableProps.style,
                             opacity: snapshot.isDragging ? 0.7 : 1,
+                            cursor: snapshot.isDragging ? "grabbing" : "grab",
                           }}
                         >
                           <TodoItem
@@ -146,7 +149,6 @@ export function TodoList({
                             onEdit={onEdit}
                             onDelete={onDelete}
                             onStatusChange={onStatusChange}
-                            dragHandleProps={provided.dragHandleProps}
                           />
                         </div>
                       )}

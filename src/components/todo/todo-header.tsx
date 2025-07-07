@@ -2,7 +2,15 @@
 
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
-import { Calendar, Clock, Plus, Filter, Brain, BarChart3, Lightbulb } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  Plus,
+  Filter,
+  Brain,
+  BarChart3,
+  Lightbulb,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -48,13 +56,21 @@ export function TodoHeader({
         <div className="flex items-center justify-between mb-4">
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white font-audiowide tracking-wider">DOIT</h1>
-              <a 
-                href="/design-system" 
-                className="text-xs text-primary-600 hover:text-primary-700 bg-primary-50 hover:bg-primary-100 px-2 py-1 rounded-md transition-colors"
-              >
-                Design System
-              </a>
+              <img src="/doit-logo.png" alt="DOIT" className="h-16 w-auto" />
+              <div className="flex items-center gap-2">
+                <a
+                  href="/design-system"
+                  className="text-xs text-primary-600 hover:text-primary-700 bg-primary-50 hover:bg-primary-100 px-2 py-1 rounded-md transition-colors"
+                >
+                  Design System
+                </a>
+                <a
+                  href="/version"
+                  className="text-xs text-primary-600 hover:text-primary-700 bg-primary-50 hover:bg-primary-100 px-2 py-1 rounded-md transition-colors"
+                >
+                  Version
+                </a>
+              </div>
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-300 capitalize">
               {dateText}
@@ -88,7 +104,11 @@ export function TodoHeader({
               <BarChart3 className="h-4 w-4 mr-2" />
               Statistiken
             </Button>
-            <Button onClick={onNewTodo} className="bg-primary-400 hover:bg-primary-500 dark:bg-primary-500 dark:hover:bg-primary-600 text-white shadow-lg" size="lg">
+            <Button
+              onClick={onNewTodo}
+              className="bg-primary-400 hover:bg-primary-500 dark:bg-primary-500 dark:hover:bg-primary-600 text-white shadow-lg"
+              size="lg"
+            >
               <Plus className="h-4 w-4 mr-2" />
               Neue Aufgabe
             </Button>
@@ -106,8 +126,8 @@ export function TodoHeader({
                 size="sm"
                 onClick={() => onFilterChange(key)}
                 className={`flex items-center gap-2 ${
-                  currentFilter === key 
-                    ? "bg-primary-400 hover:bg-primary-500 text-white" 
+                  currentFilter === key
+                    ? "bg-primary-400 hover:bg-primary-500 text-white"
                     : "border-gray-300 text-gray-700 hover:bg-gray-50"
                 }`}
               >
