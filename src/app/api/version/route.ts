@@ -76,7 +76,7 @@ export async function GET() {
         branch: 'unknown',
         commits: []
       });
-    } catch (fallbackError) {
+    } catch {
       return NextResponse.json({
         version: '0.1.0',
         buildTime: new Date().toISOString(),

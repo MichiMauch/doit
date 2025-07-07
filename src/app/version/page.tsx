@@ -10,7 +10,6 @@ import {
   Clock, 
   Package, 
   Calendar,
-  ExternalLink,
   Copy,
   Check
 } from "lucide-react";
@@ -185,7 +184,7 @@ export default function VersionPage() {
           <CardContent>
             {versionInfo?.commits && versionInfo.commits.length > 0 ? (
               <div className="space-y-4">
-                {versionInfo.commits.map((commit, index) => (
+                {versionInfo.commits.map((commit) => (
                   <div 
                     key={commit.hash} 
                     className="flex items-start gap-4 p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"

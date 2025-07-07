@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle, Clock, AlertCircle } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 import { TodoItem } from "./todo-item";
 import { type Todo } from "@/lib/db/schema";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
