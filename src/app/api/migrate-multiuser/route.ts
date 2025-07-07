@@ -5,6 +5,14 @@ import { db } from "@/lib/db";
 import { sql } from "drizzle-orm";
 
 export async function POST() {
+  return handleMigration();
+}
+
+export async function GET() {
+  return handleMigration();
+}
+
+async function handleMigration() {
   try {
     const session = await getServerSession(authOptions);
     
