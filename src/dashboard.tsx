@@ -9,7 +9,7 @@ import { WeeklySummary } from "@/components/todo/weekly-summary";
 import { StatisticsModal } from "@/components/todo/statistics-modal";
 import { SmartSuggestionsBox } from "@/components/todo/smart-suggestions-box";
 import { MobileBottomNav } from "@/components/ui/mobile-bottom-nav";
-import { type Todo, type NewTodo } from "@/lib/db/schema";
+import { type Todo, type TodoFormData } from "@/lib/db/schema";
 
 type FilterType = "today" | "week" | "all";
 
@@ -136,9 +136,7 @@ export default function Dashboard() {
     setIsFormOpen(true);
   };
 
-  const handleSaveTodo = async (
-    todoData: Omit<NewTodo, "id" | "createdAt" | "updatedAt">
-  ) => {
+  const handleSaveTodo = async (todoData: TodoFormData) => {
     try {
       setIsSaving(true);
 

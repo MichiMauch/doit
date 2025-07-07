@@ -38,3 +38,6 @@ export type Tag = typeof tags.$inferSelect;
 export type NewTag = typeof tags.$inferInsert;
 export type Setting = typeof settings.$inferSelect;
 export type NewSetting = typeof settings.$inferInsert;
+
+// Frontend type without userEmail (API adds this automatically)
+export type TodoFormData = Omit<NewTodo, "id" | "createdAt" | "updatedAt" | "userEmail">;

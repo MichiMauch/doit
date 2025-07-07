@@ -208,6 +208,16 @@ export async function POST(request: NextRequest) {
     // Parse task and date from text
     const { title, dueDate, hasTime } = parseTaskWithDate(text.trim());
 
+    // Map Slack user to email (you can extend this mapping)
+    const userEmailMapping: Record<string, string> = {
+      'mm': 'michi.mauch@netnode.ch',
+      'michi': 'michi.mauch@netnode.ch',
+      // Add more mappings as needed
+    };
+    
+    // Get user email or use slack-based email as fallback
+    const userEmail = userEmailMapping[userName] || `${userName}@slack.local`;
+
     // Create todo in database
     const newTodo = await db.insert(todos).values({
       title: title,
@@ -215,6 +225,7 @@ export async function POST(request: NextRequest) {
       completed: false,
       priority: "medium",
       dueDate: dueDate,
+      userEmail: userEmail,
       createdAt: new Date(),
       updatedAt: new Date(),
     }).returning();

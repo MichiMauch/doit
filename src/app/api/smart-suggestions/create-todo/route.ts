@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { TodoService } from '@/lib/db/service';
 import { z } from 'zod';
 
@@ -15,6 +17,12 @@ const createTodoFromSuggestionSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     const data = createTodoFromSuggestionSchema.parse(body);
 
@@ -38,6 +46,7 @@ export async function POST(request: NextRequest) {
       completed: false,
       dueDate: null,
       tags: JSON.stringify(['smart-suggestion', 'meeting-followup']),
+      userEmail: session.user.email,
     });
 
     console.log('✅ Todo aus Smart Suggestion erstellt:', todo.id);

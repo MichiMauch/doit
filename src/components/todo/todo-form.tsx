@@ -24,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { type Todo, type NewTodo } from "@/lib/db/schema";
+import { type Todo, type TodoFormData } from "@/lib/db/schema";
 import { CalendarScheduler } from "@/lib/calendar-scheduling";
 import { GoogleCalendarService } from "@/lib/google-calendar";
 import { useToast } from "@/hooks/use-toast";
@@ -33,9 +33,7 @@ interface TodoFormProps {
   todo?: Todo | null;
   isOpen: boolean;
   onClose: () => void;
-  onSave: (
-    todo: Omit<NewTodo, "id" | "createdAt" | "updatedAt">
-  ) => Promise<void>;
+  onSave: (todo: TodoFormData) => Promise<void>;
   isSaving?: boolean;
 }
 

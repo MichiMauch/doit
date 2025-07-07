@@ -40,7 +40,7 @@ export class TodoService {
   }
 
   static async getTodos(filter?: "today" | "week" | "all", userEmail?: string): Promise<Todo[]> {
-    let whereConditions = [];
+    const whereConditions = [];
     
     // User filter (if provided)
     if (userEmail) {
@@ -167,13 +167,13 @@ export class TodoService {
     };
   }
 
-  static async getStats() {
+  static async getStats(userEmail?: string) {
     try {
-      console.log("📊 Getting todos for stats...");
-      const allTodos = await this.getTodos("all");
+      console.log("📊 Getting todos for stats...", userEmail ? `for user: ${userEmail}` : "all users");
+      const allTodos = await this.getTodos("all", userEmail);
       console.log("📊 All todos count:", allTodos.length);
       
-      const todayTodos = await this.getTodos("today");
+      const todayTodos = await this.getTodos("today", userEmail);
       console.log("📊 Today todos count:", todayTodos.length);
       
       const stats = {

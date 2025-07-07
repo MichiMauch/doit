@@ -23,13 +23,13 @@ export async function POST() {
     }
 
     // 2. Alle bestehenden Todos dem aktuellen User zuweisen
-    const result = await db.run(sql`
+    await db.run(sql`
       UPDATE todos 
       SET user_email = ${session.user.email} 
       WHERE user_email IS NULL
     `);
 
-    console.log(`✅ Updated ${result.changes} todos to user: ${session.user.email}`);
+    console.log(`✅ Updated todos to user: ${session.user.email}`);
 
     // 3. Constraint hinzufügen (nur wenn möglich)
     try {
@@ -68,7 +68,6 @@ export async function POST() {
     return NextResponse.json({
       success: true,
       message: "Multi-user migration completed",
-      updatedRows: result.changes,
       currentUser: session.user.email
     });
 
