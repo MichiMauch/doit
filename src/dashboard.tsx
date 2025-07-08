@@ -294,6 +294,9 @@ export default function Dashboard() {
               onDelete={handleDeleteTodo}
               isLoading={isLoading}
               onStatusChange={handleStatusChange}
+              onCelebration={(taskTitle) => {
+                console.log(`🎉 Task completed via drag&drop: ${taskTitle}`);
+              }}
             />
           </div>
 

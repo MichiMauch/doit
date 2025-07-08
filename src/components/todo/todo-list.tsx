@@ -4,6 +4,7 @@ import { CheckCircle } from "lucide-react";
 import { TodoItem } from "./todo-item";
 import { type Todo } from "@/lib/db/schema";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
+import { cn } from "@/lib/utils";
 
 interface TodoListProps {
   todos: Todo[];
@@ -12,6 +13,7 @@ interface TodoListProps {
   onDelete: (id: number) => void;
   isLoading?: boolean;
   onStatusChange?: (id: number, status: "todo" | "in_progress" | "done") => void;
+  onCelebration?: (taskTitle: string) => void;
 }
 
 export function TodoList({
@@ -21,6 +23,7 @@ export function TodoList({
   onDelete,
   isLoading,
   onStatusChange,
+  onCelebration,
 }: TodoListProps) {
   if (isLoading) {
     return (
@@ -120,6 +123,8 @@ export function TodoList({
         onStatusChange(id, "todo");
       } else if (destination.droppableId === "in_progress") {
         onStatusChange(id, "in_progress");
+      } else if (destination.droppableId === "done") {
+        onStatusChange(id, "done");
       }
     }
   };
@@ -131,7 +136,7 @@ export function TodoList({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Zu erledigen */}
           <Droppable droppableId="todo">
-            {(provided) => (
+            {(provided, snapshot) => (
               <div ref={provided.innerRef} {...provided.droppableProps}>
                 <div className="flex items-center gap-2 mb-3">
                   <span className="inline-block w-3 h-3 rounded-full bg-blue-400" />
@@ -139,7 +144,10 @@ export function TodoList({
                     Zu erledigen ({todoTodos.length})
                   </h2>
                 </div>
-                <div className="space-y-3">
+                <div className={cn(
+                  "space-y-3 min-h-[100px] border-2 border-dashed border-transparent transition-colors rounded-lg p-2",
+                  snapshot.isDraggingOver && "border-blue-300 bg-blue-50 dark:bg-blue-900/20"
+                )}>
                   {todoTodos.map((todo, idx) => (
                     <Draggable key={todo.id} draggableId={todo.id.toString()} index={idx}>
                       {(provided, snapshot) => (
@@ -159,6 +167,7 @@ export function TodoList({
                             onEdit={onEdit}
                             onDelete={onDelete}
                             onStatusChange={onStatusChange}
+                            onCelebration={onCelebration}
                           />
                         </div>
                       )}
@@ -171,7 +180,7 @@ export function TodoList({
           </Droppable>
           {/* In Bearbeitung */}
           <Droppable droppableId="in_progress">
-            {(provided) => (
+            {(provided, snapshot) => (
               <div ref={provided.innerRef} {...provided.droppableProps}>
                 <div className="flex items-center gap-2 mb-3">
                   <span className="inline-block w-3 h-3 rounded-full bg-yellow-400" />
@@ -179,7 +188,10 @@ export function TodoList({
                     In Bearbeitung ({inProgressTodos.length})
                   </h2>
                 </div>
-                <div className="space-y-3">
+                <div className={cn(
+                  "space-y-3 min-h-[100px] border-2 border-dashed border-transparent transition-colors rounded-lg p-2",
+                  snapshot.isDraggingOver && "border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20"
+                )}>
                   {inProgressTodos.map((todo, idx) => (
                     <Draggable key={todo.id} draggableId={todo.id.toString()} index={idx}>
                       {(provided, snapshot) => (
@@ -199,6 +211,7 @@ export function TodoList({
                             onEdit={onEdit}
                             onDelete={onDelete}
                             onStatusChange={onStatusChange}
+                            onCelebration={onCelebration}
                           />
                         </div>
                       )}
@@ -212,28 +225,49 @@ export function TodoList({
         </div>
       </DragDropContext>
       {/* Erledigt: unterhalb, volle Breite */}
-      {doneTodos.length > 0 && (
-        <div>
-          <div className="flex items-center gap-2 mb-3 mt-8">
-            <span className="inline-block w-3 h-3 rounded-full bg-green-400" />
-            <h2 className="text-lg font-semibold text-green-700 dark:text-green-300">
-              Erledigt ({doneTodos.length})
-            </h2>
+      <Droppable droppableId="done">
+        {(provided, snapshot) => (
+          <div ref={provided.innerRef} {...provided.droppableProps}>
+            <div className="flex items-center gap-2 mb-3 mt-8">
+              <span className="inline-block w-3 h-3 rounded-full bg-green-400" />
+              <h2 className="text-lg font-semibold text-green-700 dark:text-green-300">
+                Erledigt ({doneTodos.length})
+              </h2>
+            </div>
+            <div className={cn(
+              "space-y-3 min-h-[100px] border-2 border-dashed border-transparent transition-colors rounded-lg p-2",
+              snapshot.isDraggingOver && "border-green-300 bg-green-50 dark:bg-green-900/20"
+            )}>
+              {doneTodos.map((todo, idx) => (
+                <Draggable key={todo.id} draggableId={todo.id.toString()} index={idx}>
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      style={{
+                        ...provided.draggableProps.style,
+                        opacity: snapshot.isDragging ? 0.7 : 1,
+                        cursor: snapshot.isDragging ? "grabbing" : "grab",
+                      }}
+                    >
+                      <TodoItem
+                        todo={todo}
+                        onToggle={onToggle}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                        onStatusChange={onStatusChange}
+                        onCelebration={onCelebration}
+                      />
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
           </div>
-          <div className="space-y-3">
-            {doneTodos.map((todo) => (
-              <TodoItem
-                key={todo.id}
-                todo={todo}
-                onToggle={onToggle}
-                onEdit={onEdit}
-                onDelete={onDelete}
-                onStatusChange={onStatusChange}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+        )}
+      </Droppable>
     </div>
   );
 }

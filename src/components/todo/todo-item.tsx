@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { DraggableProvidedDragHandleProps } from "@hello-pangea/dnd";
@@ -39,6 +39,7 @@ interface TodoItemProps {
     id: number,
     status: "todo" | "in_progress" | "done"
   ) => void;
+  onCelebration?: (taskTitle: string) => void;
   dragHandleProps?: DraggableProvidedDragHandleProps | null;
 }
 
@@ -48,10 +49,21 @@ export function TodoItem({
   onEdit,
   onDelete,
   onStatusChange,
+  onCelebration,
   dragHandleProps,
 }: TodoItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [previousStatus, setPreviousStatus] = useState(todo.status);
+
+  // Überwache Statusänderungen für Drag&Drop Celebration
+  useEffect(() => {
+    if (previousStatus !== "done" && (todo.status === "done" || todo.completed)) {
+      setShowCelebration(true);
+      onCelebration?.(todo.title);
+    }
+    setPreviousStatus(todo.status);
+  }, [todo.status, todo.completed, previousStatus, todo.title, onCelebration]);
 
   const handleToggle = () => {
     // Wenn die Aufgabe als erledigt markiert wird, zeige Celebration
@@ -155,6 +167,10 @@ export function TodoItem({
 
   // Status-Wechsel-Handler
   const handleStatusChange = (newStatus: "todo" | "in_progress" | "done") => {
+    // Wenn Task als erledigt markiert wird, zeige Celebration
+    if (newStatus === "done" && todo.status !== "done" && !todo.completed) {
+      setShowCelebration(true);
+    }
     if (onStatusChange) {
       onStatusChange(todo.id, newStatus);
     }
