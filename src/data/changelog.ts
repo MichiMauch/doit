@@ -7,6 +7,23 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.1.0",
+    date: "2025-01-08",
+    type: "minor",
+    changes: [
+      "🎆 Complete fireworks celebration system for task completion",
+      "🎯 Enhanced drag & drop with @dnd-kit - works for all status columns",
+      "✨ Fireworks animation triggers for: checkbox, dropdown, and drag&drop",
+      "🔧 Fixed Redux dependency issues by migrating to modern @dnd-kit",
+      "🎨 Centralized celebration management prevents re-render issues",
+      "📱 Fixed web app manifest syntax errors",
+      "⚡ Performance improvements with optimized state management",
+      "🔧 Clean drag & drop implementation with visual feedback",
+      "🎉 3-4 second celebration animations with emojis and particles",
+      "🚀 Production-ready drag & drop between all task columns"
+    ]
+  },
+  {
     version: "1.0.0",
     date: "2024-07-08",
     type: "major",
