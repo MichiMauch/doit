@@ -24,7 +24,8 @@
       "Bash(npx vercel:*)",
       "Bash(ls:*)",
       "Bash(convert:*)",
-      "Bash(magick:*)"
+      "Bash(magick:*)",
+      "Bash(mv:*)"
     ],
     "deny": []
   }

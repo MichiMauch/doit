@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
-import { DraggableProvidedDragHandleProps } from "@hello-pangea/dnd";
+import type { DraggableSyntheticListeners } from "@dnd-kit/core";
 import {
   Clock,
   Calendar,
@@ -40,7 +40,7 @@ interface TodoItemProps {
     status: "todo" | "in_progress" | "done"
   ) => void;
   onCelebration?: (taskTitle: string) => void;
-  dragHandleProps?: DraggableProvidedDragHandleProps | null;
+  dragHandleProps?: DraggableSyntheticListeners | null;
 }
 
 export function TodoItem({
@@ -59,6 +59,7 @@ export function TodoItem({
   // Überwache Statusänderungen für Drag&Drop Celebration
   useEffect(() => {
     if (previousStatus !== "done" && (todo.status === "done" || todo.completed)) {
+      console.log(`🎆 Triggering celebration for: ${todo.title}`);
       setShowCelebration(true);
       onCelebration?.(todo.title);
     }
@@ -167,8 +168,10 @@ export function TodoItem({
 
   // Status-Wechsel-Handler
   const handleStatusChange = (newStatus: "todo" | "in_progress" | "done") => {
+    console.log(`📋 Status change from ${todo.status} to ${newStatus} for: ${todo.title}`);
     // Wenn Task als erledigt markiert wird, zeige Celebration
     if (newStatus === "done" && todo.status !== "done" && !todo.completed) {
+      console.log(`🎆 Triggering dropdown celebration for: ${todo.title}`);
       setShowCelebration(true);
     }
     if (onStatusChange) {
@@ -247,7 +250,7 @@ export function TodoItem({
               {dragHandleProps && (
                 <div
                   {...dragHandleProps}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                  className="opacity-50 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
                 >
                   <GripVertical className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                 </div>

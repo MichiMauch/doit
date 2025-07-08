@@ -3,8 +3,103 @@
 import { CheckCircle } from "lucide-react";
 import { TodoItem } from "./todo-item";
 import { type Todo } from "@/lib/db/schema";
-import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
+import { 
+  DndContext, 
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  closestCenter,
+  useDroppable,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
+
+interface SortableItemProps {
+  todo: Todo;
+  onToggle: (id: number) => void;
+  onEdit: (todo: Todo) => void;
+  onDelete: (id: number) => void;
+  onStatusChange?: (id: number, status: "todo" | "in_progress" | "done") => void;
+  onCelebration?: (taskTitle: string) => void;
+}
+
+function SortableItem({ todo, onToggle, onEdit, onDelete, onStatusChange, onCelebration }: SortableItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: todo.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes}>
+      <TodoItem
+        todo={todo}
+        onToggle={onToggle}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        onStatusChange={onStatusChange}
+        onCelebration={onCelebration}
+        dragHandleProps={listeners}
+      />
+    </div>
+  );
+}
+
+interface DroppableColumnProps {
+  id: string;
+  children: React.ReactNode;
+  title: string;
+  count: number;
+  color: string;
+}
+
+function DroppableColumn({ id, children, title, count, color }: DroppableColumnProps) {
+  const { setNodeRef, isOver } = useDroppable({
+    id,
+  });
+
+  return (
+    <div ref={setNodeRef}>
+      <div className="flex items-center gap-2 mb-3">
+        <span className={`inline-block w-3 h-3 rounded-full ${color}`} />
+        <h2 className={cn(
+          "text-lg font-semibold",
+          color.includes("blue") && "text-gray-900 dark:text-white",
+          color.includes("yellow") && "text-yellow-700 dark:text-yellow-300",
+          color.includes("green") && "text-green-700 dark:text-green-300"
+        )}>
+          {title} ({count})
+        </h2>
+      </div>
+      <div className={cn(
+        "space-y-3 min-h-[100px] border-2 border-dashed border-transparent transition-colors rounded-lg p-2",
+        isOver && color.includes("blue") && "border-blue-300 bg-blue-50 dark:bg-blue-900/20",
+        isOver && color.includes("yellow") && "border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20",
+        isOver && color.includes("green") && "border-green-300 bg-green-50 dark:bg-green-900/20"
+      )}>
+        {children}
+      </div>
+    </div>
+  );
+}
 
 interface TodoListProps {
   todos: Todo[];
@@ -25,6 +120,15 @@ export function TodoList({
   onStatusChange,
   onCelebration,
 }: TodoListProps) {
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -112,162 +216,130 @@ export function TodoList({
     })
     .slice(0, 10); // Beschränke auf maximal 10 erledigte Tasks
 
-  // Handler für Drag & Drop
-  const handleDragEnd = (result: DropResult) => {
-    if (!result.destination || !onStatusChange) return;
-    const { source, destination, draggableId } = result;
-    const id = Number(draggableId);
-    // Nur Statuswechsel, wenn Spalte sich ändert
-    if (source.droppableId !== destination.droppableId) {
-      if (destination.droppableId === "todo") {
-        onStatusChange(id, "todo");
-      } else if (destination.droppableId === "in_progress") {
-        onStatusChange(id, "in_progress");
-      } else if (destination.droppableId === "done") {
-        onStatusChange(id, "done");
+  // Handler für Drag Events
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(String(event.active.id));
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveId(null);
+
+    if (!over || !onStatusChange) return;
+
+    const todoId = Number(active.id);
+    const overId = String(over.id);
+
+    // Check if dropped on a different status column
+    if (overId === "todo-column" || overId === "in_progress-column" || overId === "done-column") {
+      const newStatus = overId.replace("-column", "") as "todo" | "in_progress" | "done";
+      const draggedTodo = todos.find(t => t.id === todoId);
+      
+      if (draggedTodo && draggedTodo.status !== newStatus) {
+        // Trigger celebration if task is being completed
+        if (newStatus === "done" && draggedTodo.status !== "done" && !draggedTodo.completed && onCelebration) {
+          onCelebration(draggedTodo.title);
+        }
+        onStatusChange(todoId, newStatus);
       }
     }
   };
 
+  const activeTodo = activeId ? todos.find(t => t.id === Number(activeId)) : null;
+
   return (
     <div className="space-y-8">
-      <DragDropContext onDragEnd={handleDragEnd}>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
         {/* Zwei Spalten: Zu erledigen & In Bearbeitung */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Zu erledigen */}
-          <Droppable droppableId="todo">
-            {(provided, snapshot) => (
-              <div ref={provided.innerRef} {...provided.droppableProps}>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="inline-block w-3 h-3 rounded-full bg-blue-400" />
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    Zu erledigen ({todoTodos.length})
-                  </h2>
-                </div>
-                <div className={cn(
-                  "space-y-3 min-h-[100px] border-2 border-dashed border-transparent transition-colors rounded-lg p-2",
-                  snapshot.isDraggingOver && "border-blue-300 bg-blue-50 dark:bg-blue-900/20"
-                )}>
-                  {todoTodos.map((todo, idx) => (
-                    <Draggable key={todo.id} draggableId={todo.id.toString()} index={idx}>
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          style={{
-                            ...provided.draggableProps.style,
-                            opacity: snapshot.isDragging ? 0.7 : 1,
-                            cursor: snapshot.isDragging ? "grabbing" : "grab",
-                          }}
-                        >
-                          <TodoItem
-                            todo={todo}
-                            onToggle={onToggle}
-                            onEdit={onEdit}
-                            onDelete={onDelete}
-                            onStatusChange={onStatusChange}
-                            onCelebration={onCelebration}
-                          />
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              </div>
-            )}
-          </Droppable>
-          {/* In Bearbeitung */}
-          <Droppable droppableId="in_progress">
-            {(provided, snapshot) => (
-              <div ref={provided.innerRef} {...provided.droppableProps}>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="inline-block w-3 h-3 rounded-full bg-yellow-400" />
-                  <h2 className="text-lg font-semibold text-yellow-700 dark:text-yellow-300">
-                    In Bearbeitung ({inProgressTodos.length})
-                  </h2>
-                </div>
-                <div className={cn(
-                  "space-y-3 min-h-[100px] border-2 border-dashed border-transparent transition-colors rounded-lg p-2",
-                  snapshot.isDraggingOver && "border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20"
-                )}>
-                  {inProgressTodos.map((todo, idx) => (
-                    <Draggable key={todo.id} draggableId={todo.id.toString()} index={idx}>
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          style={{
-                            ...provided.draggableProps.style,
-                            opacity: snapshot.isDragging ? 0.7 : 1,
-                            cursor: snapshot.isDragging ? "grabbing" : "grab",
-                          }}
-                        >
-                          <TodoItem
-                            todo={todo}
-                            onToggle={onToggle}
-                            onEdit={onEdit}
-                            onDelete={onDelete}
-                            onStatusChange={onStatusChange}
-                            onCelebration={onCelebration}
-                          />
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              </div>
-            )}
-          </Droppable>
-        </div>
-      </DragDropContext>
-      {/* Erledigt: unterhalb, volle Breite */}
-      <Droppable droppableId="done">
-        {(provided, snapshot) => (
-          <div ref={provided.innerRef} {...provided.droppableProps}>
-            <div className="flex items-center gap-2 mb-3 mt-8">
-              <span className="inline-block w-3 h-3 rounded-full bg-green-400" />
-              <h2 className="text-lg font-semibold text-green-700 dark:text-green-300">
-                Erledigt ({doneTodos.length})
-              </h2>
-            </div>
-            <div className={cn(
-              "space-y-3 min-h-[100px] border-2 border-dashed border-transparent transition-colors rounded-lg p-2",
-              snapshot.isDraggingOver && "border-green-300 bg-green-50 dark:bg-green-900/20"
-            )}>
-              {doneTodos.map((todo, idx) => (
-                <Draggable key={todo.id} draggableId={todo.id.toString()} index={idx}>
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                      style={{
-                        ...provided.draggableProps.style,
-                        opacity: snapshot.isDragging ? 0.7 : 1,
-                        cursor: snapshot.isDragging ? "grabbing" : "grab",
-                      }}
-                    >
-                      <TodoItem
-                        todo={todo}
-                        onToggle={onToggle}
-                        onEdit={onEdit}
-                        onDelete={onDelete}
-                        onStatusChange={onStatusChange}
-                        onCelebration={onCelebration}
-                      />
-                    </div>
-                  )}
-                </Draggable>
+          <DroppableColumn 
+            id="todo-column" 
+            title="Zu erledigen" 
+            count={todoTodos.length}
+            color="bg-blue-400"
+          >
+            <SortableContext items={todoTodos.map(t => t.id)} strategy={verticalListSortingStrategy}>
+              {todoTodos.map((todo) => (
+                <SortableItem
+                  key={todo.id}
+                  todo={todo}
+                  onToggle={onToggle}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                  onStatusChange={onStatusChange}
+                  onCelebration={onCelebration}
+                />
               ))}
-              {provided.placeholder}
+            </SortableContext>
+          </DroppableColumn>
+
+          {/* In Bearbeitung */}
+          <DroppableColumn 
+            id="in_progress-column" 
+            title="In Bearbeitung" 
+            count={inProgressTodos.length}
+            color="bg-yellow-400"
+          >
+            <SortableContext items={inProgressTodos.map(t => t.id)} strategy={verticalListSortingStrategy}>
+              {inProgressTodos.map((todo) => (
+                <SortableItem
+                  key={todo.id}
+                  todo={todo}
+                  onToggle={onToggle}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                  onStatusChange={onStatusChange}
+                  onCelebration={onCelebration}
+                />
+              ))}
+            </SortableContext>
+          </DroppableColumn>
+        </div>
+
+        {/* Erledigt: unterhalb, volle Breite */}
+        <DroppableColumn 
+          id="done-column" 
+          title="Erledigt" 
+          count={doneTodos.length}
+          color="bg-green-400"
+        >
+          <SortableContext items={doneTodos.map(t => t.id)} strategy={verticalListSortingStrategy}>
+            {doneTodos.map((todo) => (
+              <SortableItem
+                key={todo.id}
+                todo={todo}
+                onToggle={onToggle}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                onStatusChange={onStatusChange}
+                onCelebration={onCelebration}
+              />
+            ))}
+          </SortableContext>
+        </DroppableColumn>
+
+        {/* Drag Overlay */}
+        <DragOverlay>
+          {activeTodo ? (
+            <div className="opacity-90 transform rotate-3">
+              <TodoItem
+                todo={activeTodo}
+                onToggle={() => {}}
+                onEdit={() => {}}
+                onDelete={() => {}}
+                onStatusChange={() => {}}
+                onCelebration={() => {}}
+              />
             </div>
-          </div>
-        )}
-      </Droppable>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
     </div>
   );
 }

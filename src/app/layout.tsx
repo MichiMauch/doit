@@ -1,7 +1,6 @@
 import "./globals.css";
 import { SessionProvider } from "@/components/providers/session-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
-import { ReduxProvider } from "@/components/providers/redux-provider";
 import { Audiowide, Red_Hat_Display } from "next/font/google";
 
 const audiowide = Audiowide({
@@ -46,11 +45,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${audiowide.variable} ${redHatDisplay.variable}`}>
-        <ReduxProvider>
-          <ThemeProvider>
-            <SessionProvider>{children}</SessionProvider>
-          </ThemeProvider>
-        </ReduxProvider>
+        <ThemeProvider>
+          <SessionProvider>{children}</SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
