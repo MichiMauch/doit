@@ -295,7 +295,7 @@ export default function Dashboard() {
               isLoading={isLoading}
               onStatusChange={handleStatusChange}
               onCelebration={(taskTitle) => {
-                console.log(`🎉 Dashboard received celebration for: ${taskTitle}`);
+                // Optional: Add global celebration tracking here
               }}
             />
           </div>

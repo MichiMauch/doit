@@ -22,6 +22,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { CelebrationAnimation } from "@/components/ui/celebration-animation";
 
 interface SortableItemProps {
   todo: Todo;
@@ -121,6 +122,7 @@ export function TodoList({
   onCelebration,
 }: TodoListProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [celebrationTodo, setCelebrationTodo] = useState<Todo | null>(null);
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -230,15 +232,27 @@ export function TodoList({
     const todoId = Number(active.id);
     const overId = String(over.id);
 
-    // Check if dropped on a different status column
+    // Check if dropped on a different status column OR on another todo in a different column
+    let newStatus: "todo" | "in_progress" | "done" | null = null;
+    
     if (overId === "todo-column" || overId === "in_progress-column" || overId === "done-column") {
-      const newStatus = overId.replace("-column", "") as "todo" | "in_progress" | "done";
+      newStatus = overId.replace("-column", "") as "todo" | "in_progress" | "done";
+    } else {
+      // Check if dropped on another todo - find which column that todo is in
+      const targetTodo = todos.find(t => t.id === Number(overId));
+      if (targetTodo) {
+        newStatus = targetTodo.status === "done" || targetTodo.completed ? "done" : targetTodo.status;
+      }
+    }
+    
+    if (newStatus) {
       const draggedTodo = todos.find(t => t.id === todoId);
       
       if (draggedTodo && draggedTodo.status !== newStatus) {
         // Trigger celebration if task is being completed
-        if (newStatus === "done" && draggedTodo.status !== "done" && !draggedTodo.completed && onCelebration) {
-          onCelebration(draggedTodo.title);
+        if (newStatus === "done" && draggedTodo.status !== "done" && !draggedTodo.completed) {
+          setCelebrationTodo(draggedTodo);
+          onCelebration?.(draggedTodo.title);
         }
         onStatusChange(todoId, newStatus);
       }
@@ -246,6 +260,19 @@ export function TodoList({
   };
 
   const activeTodo = activeId ? todos.find(t => t.id === Number(activeId)) : null;
+
+  // Handle celebration from dropdown status changes
+  const handleCelebration = (taskTitle: string) => {
+    const todo = todos.find(t => t.title === taskTitle);
+    if (todo) {
+      setCelebrationTodo(todo);
+    }
+    onCelebration?.(taskTitle);
+  };
+
+  const handleCelebrationComplete = () => {
+    setCelebrationTodo(null);
+  };
 
   return (
     <div className="space-y-8">
@@ -273,7 +300,7 @@ export function TodoList({
                   onEdit={onEdit}
                   onDelete={onDelete}
                   onStatusChange={onStatusChange}
-                  onCelebration={onCelebration}
+                  onCelebration={handleCelebration}
                 />
               ))}
             </SortableContext>
@@ -295,7 +322,7 @@ export function TodoList({
                   onEdit={onEdit}
                   onDelete={onDelete}
                   onStatusChange={onStatusChange}
-                  onCelebration={onCelebration}
+                  onCelebration={handleCelebration}
                 />
               ))}
             </SortableContext>
@@ -340,6 +367,13 @@ export function TodoList({
           ) : null}
         </DragOverlay>
       </DndContext>
+
+      {/* Centralized Celebration Animation */}
+      <CelebrationAnimation
+        isVisible={!!celebrationTodo}
+        onComplete={handleCelebrationComplete}
+        taskTitle={celebrationTodo?.title || ""}
+      />
     </div>
   );
 }

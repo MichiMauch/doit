@@ -26,7 +26,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CelebrationAnimation } from "@/components/ui/celebration-animation";
 import { type Todo } from "@/lib/db/schema";
 import { cn } from "@/lib/utils";
 
@@ -53,14 +52,11 @@ export function TodoItem({
   dragHandleProps,
 }: TodoItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [showCelebration, setShowCelebration] = useState(false);
   const [previousStatus, setPreviousStatus] = useState(todo.status);
 
   // Überwache Statusänderungen für Drag&Drop Celebration
   useEffect(() => {
     if (previousStatus !== "done" && (todo.status === "done" || todo.completed)) {
-      console.log(`🎆 Triggering celebration for: ${todo.title}`);
-      setShowCelebration(true);
       onCelebration?.(todo.title);
     }
     setPreviousStatus(todo.status);
@@ -69,13 +65,9 @@ export function TodoItem({
   const handleToggle = () => {
     // Wenn die Aufgabe als erledigt markiert wird, zeige Celebration
     if (!todo.completed) {
-      setShowCelebration(true);
+      onCelebration?.(todo.title);
     }
     onToggle(todo.id);
-  };
-
-  const handleCelebrationComplete = () => {
-    setShowCelebration(false);
   };
 
   const getPriorityGradient = (priority: string) => {
@@ -168,11 +160,9 @@ export function TodoItem({
 
   // Status-Wechsel-Handler
   const handleStatusChange = (newStatus: "todo" | "in_progress" | "done") => {
-    console.log(`📋 Status change from ${todo.status} to ${newStatus} for: ${todo.title}`);
     // Wenn Task als erledigt markiert wird, zeige Celebration
     if (newStatus === "done" && todo.status !== "done" && !todo.completed) {
-      console.log(`🎆 Triggering dropdown celebration for: ${todo.title}`);
-      setShowCelebration(true);
+      onCelebration?.(todo.title);
     }
     if (onStatusChange) {
       onStatusChange(todo.id, newStatus);
@@ -365,12 +355,6 @@ export function TodoItem({
         </div>
       </div>
 
-      {/* Celebration Animation */}
-      <CelebrationAnimation
-        isVisible={showCelebration}
-        onComplete={handleCelebrationComplete}
-        taskTitle={todo.title}
-      />
     </div>
   );
 }
