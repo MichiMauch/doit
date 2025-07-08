@@ -54,10 +54,60 @@ export function TodoList({
     );
   }
 
-  // Gruppiere nach Status
-  const todoTodos = todos.filter((t) => t.status === "todo" && !t.completed);
-  const inProgressTodos = todos.filter((t) => t.status === "in_progress" && !t.completed);
-  const doneTodos = todos.filter((t) => t.status === "done" || t.completed);
+  // Gruppiere nach Status und sortiere
+  const todoTodos = todos
+    .filter((t) => t.status === "todo" && !t.completed)
+    .sort((a, b) => {
+      // Sortiere nach Priorität: high -> medium -> low
+      const priorityOrder = { high: 3, medium: 2, low: 1 };
+      const aPriority = priorityOrder[a.priority as keyof typeof priorityOrder] || 2;
+      const bPriority = priorityOrder[b.priority as keyof typeof priorityOrder] || 2;
+      
+      if (aPriority !== bPriority) {
+        return bPriority - aPriority; // Höhere Priorität zuerst
+      }
+      
+      // Bei gleicher Priorität: nach Fälligkeitsdatum
+      if (a.dueDate && b.dueDate) {
+        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+      }
+      if (a.dueDate) return -1; // Tasks mit Fälligkeitsdatum zuerst
+      if (b.dueDate) return 1;
+      
+      // Zuletzt: nach Erstellungsdatum (neueste zuerst)
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+    
+  const inProgressTodos = todos
+    .filter((t) => t.status === "in_progress" && !t.completed)
+    .sort((a, b) => {
+      // Sortiere nach Priorität: high -> medium -> low
+      const priorityOrder = { high: 3, medium: 2, low: 1 };
+      const aPriority = priorityOrder[a.priority as keyof typeof priorityOrder] || 2;
+      const bPriority = priorityOrder[b.priority as keyof typeof priorityOrder] || 2;
+      
+      if (aPriority !== bPriority) {
+        return bPriority - aPriority; // Höhere Priorität zuerst
+      }
+      
+      // Bei gleicher Priorität: nach Fälligkeitsdatum
+      if (a.dueDate && b.dueDate) {
+        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+      }
+      if (a.dueDate) return -1; // Tasks mit Fälligkeitsdatum zuerst
+      if (b.dueDate) return 1;
+      
+      // Zuletzt: nach Erstellungsdatum (neueste zuerst)
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+    
+  const doneTodos = todos
+    .filter((t) => t.status === "done" || t.completed)
+    .sort((a, b) => {
+      // Sortiere nach updatedAt (zuletzt abgeschlossen zuerst)
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    })
+    .slice(0, 10); // Beschränke auf maximal 10 erledigte Tasks
 
   // Handler für Drag & Drop
   const handleDragEnd = (result: DropResult) => {
@@ -85,7 +135,7 @@ export function TodoList({
               <div ref={provided.innerRef} {...provided.droppableProps}>
                 <div className="flex items-center gap-2 mb-3">
                   <span className="inline-block w-3 h-3 rounded-full bg-blue-400" />
-                  <h2 className="text-lg font-semibold text-gray-900">
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                     Zu erledigen ({todoTodos.length})
                   </h2>
                 </div>
@@ -125,7 +175,7 @@ export function TodoList({
               <div ref={provided.innerRef} {...provided.droppableProps}>
                 <div className="flex items-center gap-2 mb-3">
                   <span className="inline-block w-3 h-3 rounded-full bg-yellow-400" />
-                  <h2 className="text-lg font-semibold text-yellow-700">
+                  <h2 className="text-lg font-semibold text-yellow-700 dark:text-yellow-300">
                     In Bearbeitung ({inProgressTodos.length})
                   </h2>
                 </div>
@@ -166,7 +216,7 @@ export function TodoList({
         <div>
           <div className="flex items-center gap-2 mb-3 mt-8">
             <span className="inline-block w-3 h-3 rounded-full bg-green-400" />
-            <h2 className="text-lg font-semibold text-green-700">
+            <h2 className="text-lg font-semibold text-green-700 dark:text-green-300">
               Erledigt ({doneTodos.length})
             </h2>
           </div>

@@ -89,6 +89,13 @@ export default function VersionPage() {
             >
               Zurück
             </Button>
+            <Button
+              variant="outline"
+              onClick={() => window.location.href = '/version/changelog'}
+              className="border-primary-300 dark:border-primary-600 text-primary-600 dark:text-primary-400"
+            >
+              Detailed Changelog
+            </Button>
             <ThemeToggle />
           </div>
         </div>

@@ -21,7 +21,10 @@
       "Bash(curl:*)",
       "Bash(find:*)",
       "Bash(npx vercel logs:*)",
-      "Bash(npx vercel:*)"
+      "Bash(npx vercel:*)",
+      "Bash(ls:*)",
+      "Bash(convert:*)",
+      "Bash(magick:*)"
     ],
     "deny": []
   }

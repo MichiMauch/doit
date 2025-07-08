@@ -326,7 +326,7 @@ export function TodoItem({
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="p-0 h-auto text-xs text-gray-600 hover:text-gray-900 cursor-pointer"
+                className="p-0 h-auto text-xs text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 cursor-pointer"
               >
                 {isExpanded ? (
                   <ChevronDown className="h-3 w-3 mr-1" />
@@ -337,7 +337,7 @@ export function TodoItem({
               </Button>
 
               {isExpanded && (
-                <p className="mt-2 text-sm text-gray-700 whitespace-pre-wrap cursor-pointer">
+                <p className="mt-2 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap cursor-pointer">
                   {todo.description}
                 </p>
               )}

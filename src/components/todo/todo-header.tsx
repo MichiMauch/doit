@@ -77,7 +77,12 @@ export function TodoHeader({
             </p>
           </div>
 
-          {/* Buttons Gruppe - nur auf Desktop sichtbar */}
+          {/* Mobile Header Buttons */}
+          <div className="flex md:hidden items-center">
+            <ThemeToggle />
+          </div>
+
+          {/* Desktop Buttons Gruppe */}
           <div className="hidden md:flex items-center gap-3">
             <ThemeToggle />
             <Button

@@ -1,8 +1,7 @@
 "use client";
 
-import { Plus, Brain, BarChart3, Lightbulb } from "lucide-react";
+import { Brain, BarChart3, Lightbulb, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { cn } from "@/lib/utils";
 
 interface MobileBottomNavProps {
@@ -20,19 +19,7 @@ export function MobileBottomNav({
 }: MobileBottomNavProps) {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 shadow-lg md:hidden">
-      <div className="grid grid-cols-5 h-16 px-2">
-        {/* Neue Aufgabe Button (hervorgehoben) - ganz links */}
-        <Button
-          onClick={onNewTodo}
-          className={cn(
-            "h-12 w-12 rounded-full mx-auto mt-2 shadow-lg",
-            "bg-primary-400 hover:bg-primary-500 dark:bg-primary-500 dark:hover:bg-primary-600 text-white",
-            "flex items-center justify-center transition-all duration-200 hover:scale-105"
-          )}
-        >
-          <Plus className="h-6 w-6" />
-        </Button>
-
+      <div className="grid grid-cols-4 h-16 px-2">
         {/* Smart Suggestions Button */}
         <Button
           variant="ghost"
@@ -72,10 +59,17 @@ export function MobileBottomNav({
           <span className="text-xs font-medium">Stats</span>
         </Button>
 
-        {/* Theme Toggle */}
-        <div className="flex items-center justify-center h-full">
-          <ThemeToggle />
-        </div>
+        {/* Neue Aufgabe Button - ganz rechts */}
+        <Button
+          onClick={onNewTodo}
+          className={cn(
+            "h-12 w-12 rounded-full mx-auto mt-2 shadow-lg",
+            "bg-primary-400 hover:bg-primary-500 dark:bg-primary-500 dark:hover:bg-primary-600 text-white",
+            "flex items-center justify-center transition-all duration-200 hover:scale-105"
+          )}
+        >
+          <Plus className="h-6 w-6" />
+        </Button>
       </div>
     </div>
   );

@@ -50,55 +50,175 @@ export default function DesignSystemPage() {
           <ThemeToggle />
         </div>
 
-        {/* Logo Section */}
+        {/* Logo & Icons Section */}
         <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 mb-8">
           <CardHeader>
             <CardTitle className="text-gray-900 dark:text-white">
-              Logo
+              Logo & Icons
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-6">
-              <div className="flex flex-col items-center">
-                <img
-                  src="/doit-logo.png"
-                  alt="DOIT Logo"
-                  className="h-16 w-auto mb-2"
-                />
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Big (h-16)
-                </p>
+          <CardContent className="space-y-6">
+            {/* Main Logo Sizes */}
+            <div>
+              <h3 className="font-medium mb-3 text-gray-800 dark:text-gray-200">Main Logo</h3>
+              <div className="flex items-center gap-6">
+                <div className="flex flex-col items-center">
+                  <img
+                    src="/doit-logo.png"
+                    alt="DOIT Logo"
+                    className="h-16 w-auto mb-2"
+                  />
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Big (h-16)
+                  </p>
+                </div>
+                <div className="flex flex-col items-center">
+                  <img
+                    src="/doit-logo.png"
+                    alt="DOIT Logo"
+                    className="h-12 w-auto mb-2"
+                  />
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Standard (h-12)
+                  </p>
+                </div>
+                <div className="flex flex-col items-center">
+                  <img
+                    src="/doit-logo.png"
+                    alt="DOIT Logo"
+                    className="h-8 w-auto mb-2"
+                  />
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Header (h-8)
+                  </p>
+                </div>
+                <div className="flex flex-col items-center">
+                  <img
+                    src="/doit-logo.png"
+                    alt="DOIT Logo"
+                    className="h-6 w-auto mb-2"
+                  />
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Small (h-6)
+                  </p>
+                </div>
               </div>
-              <div className="flex flex-col items-center">
-                <img
-                  src="/doit-logo.png"
-                  alt="DOIT Logo"
-                  className="h-12 w-auto mb-2"
-                />
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Standard (h-12)
-                </p>
+            </div>
+
+            {/* Favicons */}
+            <div>
+              <h3 className="font-medium mb-3 text-gray-800 dark:text-gray-200">Favicons</h3>
+              <div className="flex items-center gap-6">
+                <div className="flex flex-col items-center">
+                  <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded">
+                    <img
+                      src="/favicon-32x32.png"
+                      alt="Favicon 32x32"
+                      className="w-8 h-8"
+                    />
+                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                    32x32
+                  </p>
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded">
+                    <img
+                      src="/favicon-16x16.png"
+                      alt="Favicon 16x16"
+                      className="w-4 h-4"
+                    />
+                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                    16x16
+                  </p>
+                </div>
               </div>
-              <div className="flex flex-col items-center">
-                <img
-                  src="/doit-logo.png"
-                  alt="DOIT Logo"
-                  className="h-8 w-auto mb-2"
-                />
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Header (h-8)
-                </p>
+            </div>
+
+            {/* Apple Touch Icons */}
+            <div>
+              <h3 className="font-medium mb-3 text-gray-800 dark:text-gray-200">Apple Touch Icons</h3>
+              <div className="flex items-center gap-6">
+                <div className="flex flex-col items-center">
+                  <div className="p-2 bg-black rounded-xl">
+                    <img
+                      src="/apple-touch-icon.png"
+                      alt="Apple Touch Icon 180x180"
+                      className="w-16 h-16 rounded-lg"
+                    />
+                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                    180x180
+                  </p>
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="p-2 bg-black rounded-xl">
+                    <img
+                      src="/apple-touch-icon-152x152.png"
+                      alt="Apple Touch Icon 152x152"
+                      className="w-12 h-12 rounded-lg"
+                    />
+                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                    152x152
+                  </p>
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="p-2 bg-black rounded-xl">
+                    <img
+                      src="/apple-touch-icon-120x120.png"
+                      alt="Apple Touch Icon 120x120"
+                      className="w-10 h-10 rounded-lg"
+                    />
+                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                    120x120
+                  </p>
+                </div>
               </div>
-              <div className="flex flex-col items-center">
-                <img
-                  src="/doit-logo.png"
-                  alt="DOIT Logo"
-                  className="h-6 w-auto mb-2"
-                />
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Small (h-6)
-                </p>
+            </div>
+
+            {/* Android Chrome Icons */}
+            <div>
+              <h3 className="font-medium mb-3 text-gray-800 dark:text-gray-200">Android Chrome Icons</h3>
+              <div className="flex items-center gap-6">
+                <div className="flex flex-col items-center">
+                  <div className="p-3 bg-gradient-to-br from-green-400 to-blue-500 rounded-2xl">
+                    <img
+                      src="/android-chrome-512x512.png"
+                      alt="Android Chrome 512x512"
+                      className="w-16 h-16 rounded-xl"
+                    />
+                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                    512x512
+                  </p>
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="p-2 bg-gradient-to-br from-green-400 to-blue-500 rounded-xl">
+                    <img
+                      src="/android-chrome-192x192.png"
+                      alt="Android Chrome 192x192"
+                      className="w-12 h-12 rounded-lg"
+                    />
+                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                    192x192
+                  </p>
+                </div>
               </div>
+            </div>
+
+            {/* Usage Information */}
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+              <h4 className="font-medium text-blue-900 dark:text-blue-200 mb-2">Icon Usage</h4>
+              <ul className="text-sm text-blue-800 dark:text-blue-300 space-y-1">
+                <li>• <strong>Favicons:</strong> Browser tabs and bookmarks</li>
+                <li>• <strong>Apple Touch Icons:</strong> iOS home screen shortcuts</li>
+                <li>• <strong>Android Chrome:</strong> Android home screen and PWA</li>
+                <li>• <strong>Main Logo:</strong> App interface and branding</li>
+              </ul>
             </div>
           </CardContent>
         </Card>
