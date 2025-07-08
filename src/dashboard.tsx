@@ -294,7 +294,7 @@ export default function Dashboard() {
               onDelete={handleDeleteTodo}
               isLoading={isLoading}
               onStatusChange={handleStatusChange}
-              onCelebration={(taskTitle) => {
+              onCelebration={() => {
                 // Optional: Add global celebration tracking here
               }}
             />
