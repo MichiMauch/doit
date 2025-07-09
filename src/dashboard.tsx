@@ -27,6 +27,7 @@ export default function Dashboard() {
     total: number;
     completed: number;
     pending: number;
+    completedLate: number;
     todayTotal: number;
     todayCompleted: number;
   } | null>(null);
@@ -88,6 +89,7 @@ export default function Dashboard() {
             total: 0,
             completed: 0,
             pending: 0,
+            completedLate: 0,
             todayTotal: 0,
             todayCompleted: 0,
           });

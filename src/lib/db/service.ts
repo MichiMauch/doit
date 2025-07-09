@@ -176,10 +176,25 @@ export class TodoService {
       const todayTodos = await this.getTodos("today", userEmail);
       console.log("📊 Today todos count:", todayTodos.length);
       
+      // Berechne verspätet abgeschlossene Tasks
+      const completedLate = allTodos.filter(t => {
+        if (!t.completed || !t.dueDate || !t.updatedAt) return false;
+        
+        const dueDate = new Date(t.dueDate);
+        const completedDate = new Date(t.updatedAt);
+        
+        // Nur das Datum vergleichen, nicht die Uhrzeit (falls nur Datum gesetzt wurde)
+        const dueDateOnly = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate());
+        const completedDateOnly = new Date(completedDate.getFullYear(), completedDate.getMonth(), completedDate.getDate());
+        
+        return completedDateOnly > dueDateOnly;
+      }).length;
+
       const stats = {
         total: allTodos.length,
         completed: allTodos.filter(t => t.completed).length,
         pending: allTodos.filter(t => !t.completed).length,
+        completedLate: completedLate,
         todayTotal: todayTodos.length,
         todayCompleted: todayTodos.filter(t => t.completed).length,
       };

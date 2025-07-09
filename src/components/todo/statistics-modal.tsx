@@ -28,6 +28,7 @@ import {
   CheckCircle2,
   Circle,
   Flame,
+  AlertTriangle,
 } from "lucide-react";
 import { type Todo } from "@/lib/db/schema";
 import { cn } from "@/lib/utils";
@@ -60,6 +61,7 @@ interface ProductivityStats {
     medium: number;
     low: number;
   };
+  completedLate: number;
 }
 
 const calculateWeekStats = (todos: Todo[]): WeekStats => {
@@ -180,6 +182,7 @@ export function StatisticsModal({ isOpen, onClose }: StatisticsModalProps) {
           longestStreak: 0,
           averageTasksPerDay: 0,
           priorityDistribution: { high: 0, medium: 0, low: 0 },
+          completedLate: 0,
         };
       }
 
@@ -249,6 +252,20 @@ export function StatisticsModal({ isOpen, onClose }: StatisticsModalProps) {
         low: completedTodos.filter((todo) => todo.priority === "low").length,
       };
 
+      // Berechne verspätet abgeschlossene Tasks
+      const completedLate = completedTodos.filter((todo) => {
+        if (!todo.dueDate || !todo.updatedAt) return false;
+        
+        const dueDate = new Date(todo.dueDate);
+        const completedDate = new Date(todo.updatedAt);
+        
+        // Nur das Datum vergleichen, nicht die Uhrzeit (falls nur Datum gesetzt wurde)
+        const dueDateOnly = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate());
+        const completedDateOnly = new Date(completedDate.getFullYear(), completedDate.getMonth(), completedDate.getDate());
+        
+        return completedDateOnly > dueDateOnly;
+      }).length;
+
       return {
         currentWeek,
         lastWeek,
@@ -259,6 +276,7 @@ export function StatisticsModal({ isOpen, onClose }: StatisticsModalProps) {
         longestStreak,
         averageTasksPerDay,
         priorityDistribution,
+        completedLate,
       };
     },
     []
@@ -511,7 +529,7 @@ export function StatisticsModal({ isOpen, onClose }: StatisticsModalProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                   <div className="text-center">
                     <div className="flex items-center justify-center mb-2">
                       <CheckCircle2 className="h-8 w-8 text-green-500" />
@@ -547,6 +565,15 @@ export function StatisticsModal({ isOpen, onClose }: StatisticsModalProps) {
                       {stats.averageTasksPerDay.toFixed(1)}
                     </p>
                     <p className="text-sm text-gray-600">Ø pro Tag</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="flex items-center justify-center mb-2">
+                      <AlertTriangle className="h-8 w-8 text-orange-500" />
+                    </div>
+                    <p className="text-2xl font-bold text-orange-600">
+                      {stats.completedLate}
+                    </p>
+                    <p className="text-sm text-gray-600">Verspätet</p>
                   </div>
                 </div>
               </CardContent>
