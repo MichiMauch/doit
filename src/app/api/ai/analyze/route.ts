@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { OpenAIService } from "@/lib/openai";
-import { GoogleCalendarService } from "@/lib/google-calendar";
+import { GoogleCalendarService, type CalendarEvent } from "@/lib/google-calendar";
 import { type Todo } from "@/lib/db/schema";
 import { startOfWeek, endOfWeek } from "date-fns";
 
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     };
 
     // Lade Kalendertermine für die Woche (falls verfügbar)
-    let calendarEvents: any[] = [];
+    let calendarEvents: CalendarEvent[] = [];
     try {
       calendarEvents = await GoogleCalendarService.getEventsForDateRange(
         currentWeek.start,
