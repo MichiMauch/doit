@@ -7,6 +7,20 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.1.1",
+    date: "2025-01-09",
+    type: "patch",
+    changes: [
+      "📊 Added 'Completed Late' statistics feature to track overdue task completion",
+      "🔧 Fixed weekly summary (Zusammenfassung) - now works without Google Calendar",
+      "🧠 Enhanced AI workload analysis with graceful fallback handling",
+      "⚡ Improved error handling for calendar integration",
+      "📈 Better productivity metrics with punctuality tracking",
+      "🎯 Statistics modal now shows tasks completed after due date",
+      "🔨 Technical improvements for better system reliability"
+    ]
+  },
+  {
     version: "1.1.0",
     date: "2025-01-08",
     type: "minor",
