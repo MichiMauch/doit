@@ -22,11 +22,17 @@ export async function POST(request: NextRequest) {
       end: endOfWeek(new Date(), { weekStartsOn: 1 }),     // Sonntag
     };
 
-    // Lade Kalendertermine für die Woche
-    const calendarEvents = await GoogleCalendarService.getEventsForDateRange(
-      currentWeek.start,
-      currentWeek.end
-    );
+    // Lade Kalendertermine für die Woche (falls verfügbar)
+    let calendarEvents: any[] = [];
+    try {
+      calendarEvents = await GoogleCalendarService.getEventsForDateRange(
+        currentWeek.start,
+        currentWeek.end
+      );
+    } catch (error) {
+      console.warn('⚠️ Google Calendar nicht verfügbar - verwende leere Terminliste:', error);
+      calendarEvents = [];
+    }
 
     // Berechne verfügbare Arbeitszeit
     const workingDays = [1, 2, 3, 4]; // Mo-Do
