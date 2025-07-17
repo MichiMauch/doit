@@ -25,7 +25,12 @@
       "Bash(ls:*)",
       "Bash(convert:*)",
       "Bash(magick:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(npm install)",
+      "Bash(pkill:*)",
+      "Bash(curl:*)",
+      "Bash(chmod:*)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }

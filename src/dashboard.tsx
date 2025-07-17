@@ -8,6 +8,7 @@ import { CalendarView } from "@/components/calendar/calendar-view";
 import { WeeklySummary } from "@/components/todo/weekly-summary";
 import { StatisticsModal } from "@/components/todo/statistics-modal";
 import { SmartSuggestionsBox } from "@/components/todo/smart-suggestions-box";
+import { SimpleJiraPanel } from "@/components/jira/simple-jira-panel";
 import { MobileBottomNav } from "@/components/ui/mobile-bottom-nav";
 import { type Todo, type TodoFormData } from "@/lib/db/schema";
 
@@ -303,8 +304,9 @@ export default function Dashboard() {
           </div>
 
           {/* Kalender-Sidebar (1/3 der Breite auf großen Bildschirmen) */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 space-y-6">
             <CalendarView />
+            <SimpleJiraPanel />
           </div>
         </div>
       </main>

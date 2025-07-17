@@ -32,12 +32,34 @@ export const settings = sqliteTable("settings", {
   updatedAt: integer("updated_at", { mode: "timestamp" }).default(sql`(unixepoch())`).notNull(),
 });
 
+export const jiraIssues = sqliteTable("jira_issues", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  jiraId: text("jira_id").notNull().unique(),
+  key: text("key").notNull(),
+  summary: text("summary").notNull(),
+  description: text("description"),
+  status: text("status").notNull(),
+  priority: text("priority"),
+  assignee: text("assignee"),
+  project: text("project").notNull(),
+  issueType: text("issue_type").notNull(),
+  dueDate: integer("due_date", { mode: "timestamp" }),
+  sprint: text("sprint"),
+  sprintState: text("sprint_state"),
+  userEmail: text("user_email").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).default(sql`(unixepoch())`).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).default(sql`(unixepoch())`).notNull(),
+  lastSyncAt: integer("last_sync_at", { mode: "timestamp" }).default(sql`(unixepoch())`).notNull(),
+});
+
 export type Todo = typeof todos.$inferSelect;
 export type NewTodo = typeof todos.$inferInsert;
 export type Tag = typeof tags.$inferSelect;
 export type NewTag = typeof tags.$inferInsert;
 export type Setting = typeof settings.$inferSelect;
 export type NewSetting = typeof settings.$inferInsert;
+export type JiraIssue = typeof jiraIssues.$inferSelect;
+export type NewJiraIssue = typeof jiraIssues.$inferInsert;
 
 // Frontend type without userEmail (API adds this automatically)
 export type TodoFormData = Omit<NewTodo, "id" | "createdAt" | "updatedAt" | "userEmail">;

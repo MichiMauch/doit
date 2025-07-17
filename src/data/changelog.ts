@@ -7,6 +7,22 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.2.0",
+    date: "2025-01-17",
+    type: "minor", 
+    changes: [
+      "🔗 Complete Jira integration with project-based task synchronization",
+      "🎯 Smart filtering: excludes 'Ready to review' status and 'Release Notes' tasks",
+      "📊 Sprint information display for better project visibility",
+      "🚫 Task blacklist system - click to hide unwanted issues permanently",
+      "⚙️ Easy configuration with Jira URL, email, and API token",
+      "🔄 Real-time sync with automatic filtering of completed tasks",
+      "🎨 Clean UI with priority indicators and external link integration",
+      "📱 Mobile-optimized Jira panel in sidebar layout",
+      "🛡️ localStorage-based configuration for seamless user experience"
+    ]
+  },
+  {
     version: "1.1.1",
     date: "2025-01-09",
     type: "patch",
