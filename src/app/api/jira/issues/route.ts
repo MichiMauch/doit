@@ -125,7 +125,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get issues from database
-    let query = db
+    const query = db
       .select()
       .from(jiraIssues)
       .where(eq(jiraIssues.userEmail, userEmail));

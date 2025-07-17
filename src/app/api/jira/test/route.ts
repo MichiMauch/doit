@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     }
 
     // If connection works, try to fetch issues
-    let issues = [];
+    let issues: Awaited<ReturnType<typeof jiraService.getIssuesByProjects>> = [];
     if (projects.length > 0) {
       issues = await jiraService.getIssuesByProjects(projects);
     }

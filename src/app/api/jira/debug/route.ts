@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     if (projects.length > 0) {
       console.log("=== Test 4: Project Query ===");
       try {
-        const projectJql = `project IN (${projects.map(p => `"${p}"`).join(',')})`;
+        const projectJql = `project IN (${projects.map((p: string) => `"${p}"`).join(',')})`;
         console.log("Project JQL:", projectJql);
         
         const projectResponse = await fetch(`${url}/rest/api/2/search?jql=${encodeURIComponent(projectJql)}&maxResults=5`, {

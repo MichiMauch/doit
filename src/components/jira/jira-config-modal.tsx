@@ -65,7 +65,7 @@ export function JiraConfigModal({ isOpen, onClose, onConfigured }: JiraConfigMod
         const data = await response.json();
         setError(data.error || "Failed to save configuration");
       }
-    } catch (error) {
+    } catch {
       setError("Failed to save configuration");
     } finally {
       setIsLoading(false);

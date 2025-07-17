@@ -221,7 +221,7 @@ export function SimpleJiraPanel() {
         const data = await response.json();
         setError(data.error || "Fehler beim Speichern der Konfiguration");
       }
-    } catch (error) {
+    } catch {
       setError("Fehler beim Speichern der Konfiguration");
     } finally {
       setIsConfigLoading(false);
@@ -258,7 +258,7 @@ export function SimpleJiraPanel() {
         const data = await response.json();
         setError(data.error || "Fehler beim Laden der Issues");
       }
-    } catch (error) {
+    } catch {
       setError("Fehler beim Laden der Issues");
     } finally {
       setIsLoading(false);
@@ -347,7 +347,7 @@ export function SimpleJiraPanel() {
           <Alert>
             <Settings className="h-4 w-4" />
             <AlertDescription>
-              Jira ist noch nicht konfiguriert. Klicke auf "Konfigurieren".
+              Jira ist noch nicht konfiguriert. Klicke auf &quot;Konfigurieren&quot;.
             </AlertDescription>
           </Alert>
         </CardContent>

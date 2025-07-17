@@ -1,4 +1,4 @@
-import { type JiraIssue, type NewJiraIssue } from "@/lib/db/schema";
+import { type JiraIssue } from "@/lib/db/schema";
 
 export interface JiraConfig {
   url: string;
@@ -125,7 +125,7 @@ export class JiraService {
   }
 
   async getProjects(): Promise<{ key: string; name: string }[]> {
-    const response = await this.makeRequest<any[]>('/project');
+    const response = await this.makeRequest<{ key: string; name: string }[]>('/project');
     return response.map(project => ({
       key: project.key,
       name: project.name
@@ -158,16 +158,16 @@ export class JiraService {
         const sprintFields = ['customfield_10020', 'customfield_10010', 'customfield_10016'];
         
         for (const fieldId of sprintFields) {
-          const fieldValue = (issue.fields as any)[fieldId];
+          const fieldValue = (issue.fields as Record<string, unknown>)[fieldId];
           if (fieldValue) {
             console.log(`Sprint field ${fieldId} for ${issue.key}:`, fieldValue);
             
             // Handle different sprint field formats
             if (Array.isArray(fieldValue)) {
               // Sprint objects array
-              const activeSprint = fieldValue.find((s: any) => s.state === 'active') || fieldValue[0];
-              if (activeSprint && activeSprint.name) {
-                enrichedIssue.fields.sprint = fieldValue;
+              const activeSprint = fieldValue.find((s: Record<string, unknown>) => s.state === 'active') || fieldValue[0];
+              if (activeSprint && typeof activeSprint === 'object' && activeSprint.name) {
+                enrichedIssue.fields.sprint = fieldValue as { id: number; name: string; state: string }[];
                 break;
               }
             } else if (typeof fieldValue === 'string') {

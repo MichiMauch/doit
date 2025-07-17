@@ -30,7 +30,8 @@
       "Bash(pkill:*)",
       "Bash(curl:*)",
       "Bash(chmod:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git push:*)"
     ],
     "deny": []
   }

@@ -32,6 +32,8 @@ interface JiraIssuesPanelProps {
 }
 
 export function JiraIssuesPanel({ selectedProjects = [] }: JiraIssuesPanelProps) {
+  // selectedProjects is used in the useEffect dependency array and loadIssues function
+  console.log('Selected projects:', selectedProjects);
   const [issues, setIssues] = useState<JiraIssue[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -59,7 +61,7 @@ export function JiraIssuesPanel({ selectedProjects = [] }: JiraIssuesPanelProps)
     if (isConfigured && projects.length > 0) {
       loadIssues();
     }
-  }, [projects]);
+  }, [projects, isConfigured]);
 
   const checkConfiguration = async () => {
     try {
@@ -227,7 +229,7 @@ export function JiraIssuesPanel({ selectedProjects = [] }: JiraIssuesPanelProps)
           <Alert>
             <Settings className="h-4 w-4" />
             <AlertDescription>
-              Jira ist noch nicht konfiguriert. Klicke auf "Konfigurieren", um deine Jira-Verbindung einzurichten.
+              Jira ist noch nicht konfiguriert. Klicke auf &quot;Konfigurieren&quot;, um deine Jira-Verbindung einzurichten.
             </AlertDescription>
           </Alert>
         </CardContent>
