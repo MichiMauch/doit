@@ -27,9 +27,24 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // 1. Prüfe auf API Key im Header (für externe Dienste wie ActivePieces)
+    const apiKey = request.headers.get('x-api-key');
+    const isAuthorizedMachine = apiKey === process.env.CRON_SECRET;
+
+    // 2. Prüfe auf Session (für Menschen)
     const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.email) {
+
+    // 3. Bestimme die userEmail
+    let userEmail: string | undefined;
+
+    if (isAuthorizedMachine) {
+      userEmail = process.env.CRON_USER_EMAIL;
+    } else if (session?.user?.email) {
+      userEmail = session.user.email;
+    }
+
+    // 4. Wenn weder noch -> Fehler
+    if (!userEmail) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -46,7 +61,7 @@ export async function POST(request: NextRequest) {
     // Füge userEmail automatisch hinzu
     const todoData = {
       ...body,
-      userEmail: session.user.email
+      userEmail: userEmail
     };
 
     const todo = await TodoService.createTodo(todoData);
