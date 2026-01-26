@@ -86,6 +86,17 @@ export class TodoService {
     return result.map(this.parseTodo);
   }
 
+  static async getTodoByEmailSource(emailSource: string, userEmail?: string): Promise<Todo | null> {
+    const whereConditions = [eq(todos.emailSource, emailSource)];
+    if (userEmail) {
+      whereConditions.push(eq(todos.userEmail, userEmail));
+    }
+    const result = await db.select().from(todos)
+      .where(and(...whereConditions))
+      .limit(1);
+    return result.length > 0 ? this.parseTodo(result[0]) : null;
+  }
+
   static async getTodo(id: number): Promise<Todo | null> {
     const result = await db.select().from(todos).where(eq(todos.id, id)).limit(1);
     return result.length > 0 ? this.parseTodo(result[0]) : null;
