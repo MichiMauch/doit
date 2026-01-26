@@ -15,6 +15,8 @@ export interface GmailMessage {
   body: string;
   snippet: string;
   date: Date;
+  /** Weitere Message-IDs im selben Thread (für Label-Entfernung) */
+  extraMessageIds?: string[];
 }
 
 const DOIT_LABEL_NAME = "DOIT";
@@ -111,7 +113,11 @@ export class GoogleGmailService {
   }
 
   /**
-   * Holt alle E-Mails mit dem "DOIT"-Label
+   * Holt alle E-Mails mit dem "DOIT"-Label.
+   * Pro Thread wird nur die neueste Nachricht zurückgegeben,
+   * damit Konversationen nicht mehrfach als Todo erstellt werden.
+   * Die IDs aller Nachrichten im Thread werden in extraMessageIds gespeichert,
+   * damit das Label von allen entfernt werden kann.
    */
   static async getDoitMessages(accessToken: string): Promise<GmailMessage[]> {
     const gmail = createGmailClient(accessToken);
@@ -129,27 +135,51 @@ export class GoogleGmailService {
       maxResults: 50,
     });
 
-    const messageIds = (listResponse.data.messages || [])
-      .map((m) => m.id)
-      .filter((id): id is string => id != null);
-    if (messageIds.length === 0) {
+    const rawMessages = (listResponse.data.messages || [])
+      .filter((m) => m.id != null);
+    if (rawMessages.length === 0) {
       return [];
     }
 
-    console.log(`[Gmail] ${messageIds.length} E-Mails mit DOIT-Label gefunden`);
+    console.log(`[Gmail] ${rawMessages.length} Nachrichten mit DOIT-Label gefunden`);
 
-    // Vollständige Message-Details abrufen
-    const messages: GmailMessage[] = [];
-    for (const messageId of messageIds) {
+    // Alle Nachrichten abrufen
+    const allMessages: GmailMessage[] = [];
+    for (const raw of rawMessages) {
       try {
-        const msg = await this.getMessage(messageId, accessToken);
-        messages.push(msg);
+        const msg = await this.getMessage(raw.id!, accessToken);
+        allMessages.push(msg);
       } catch (error) {
-        console.error(`[Gmail] Fehler beim Abrufen von Message ${messageId}:`, error);
+        console.error(`[Gmail] Fehler beim Abrufen von Message ${raw.id}:`, error);
       }
     }
 
-    return messages;
+    // Pro Thread nur die neueste Nachricht behalten
+    const threadMap = new Map<string, GmailMessage>();
+    const threadAllIds = new Map<string, string[]>();
+
+    for (const msg of allMessages) {
+      const existing = threadMap.get(msg.threadId);
+      if (!existing || msg.date > existing.date) {
+        threadMap.set(msg.threadId, msg);
+      }
+      // Alle Message-IDs pro Thread sammeln (für Label-Entfernung)
+      const ids = threadAllIds.get(msg.threadId) || [];
+      ids.push(msg.id);
+      threadAllIds.set(msg.threadId, ids);
+    }
+
+    // extraMessageIds an die gewählte Nachricht anhängen
+    const deduplicated: GmailMessage[] = [];
+    for (const [threadId, msg] of threadMap) {
+      const allIds = threadAllIds.get(threadId) || [];
+      // Alle anderen IDs im Thread (ausser der gewählten Nachricht selbst)
+      msg.extraMessageIds = allIds.filter((id) => id !== msg.id);
+      deduplicated.push(msg);
+    }
+
+    console.log(`[Gmail] ${deduplicated.length} Threads nach Deduplizierung (aus ${allMessages.length} Nachrichten)`);
+    return deduplicated;
   }
 
   /**

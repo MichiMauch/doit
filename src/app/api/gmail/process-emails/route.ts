@@ -1,9 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { GoogleGmailService } from "@/lib/google-gmail";
+import { GoogleGmailService, type GmailMessage } from "@/lib/google-gmail";
 import { EmailAIService } from "@/lib/email-ai";
 import { TodoService } from "@/lib/db/service";
+
+/**
+ * Entfernt das DOIT-Label von der Hauptnachricht und allen weiteren Nachrichten im Thread.
+ */
+async function removeLabelsFromThread(message: GmailMessage, labelId: string, accessToken: string) {
+  await GoogleGmailService.removeDoitLabel(message.id, labelId, accessToken);
+  for (const extraId of message.extraMessageIds || []) {
+    try {
+      await GoogleGmailService.removeDoitLabel(extraId, labelId, accessToken);
+    } catch {
+      // Einzelne Fehler ignorieren
+    }
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -82,13 +96,13 @@ export async function POST(request: NextRequest) {
 
     for (const message of messages) {
       try {
-        // Duplikat-Check
-        const existing = await TodoService.getTodoByEmailSource(message.id, userEmail);
+        // Duplikat-Check (Thread-ID als emailSource)
+        const existing = await TodoService.getTodoByEmailSource(message.threadId, userEmail);
         if (existing) {
-          console.log(`[Gmail Cron] Überspringe bereits verarbeitete E-Mail: ${message.subject}`);
-          // Label trotzdem entfernen (falls beim letzten Mal fehlgeschlagen)
+          console.log(`[Gmail Cron] Überspringe bereits verarbeiteten Thread: ${message.subject}`);
+          // Label von allen Nachrichten im Thread entfernen
           try {
-            await GoogleGmailService.removeDoitLabel(message.id, labelId, accessToken);
+            await removeLabelsFromThread(message, labelId, accessToken);
           } catch {
             // Ignorieren
           }
@@ -115,17 +129,16 @@ export async function POST(request: NextRequest) {
           priority: summary.priority,
           estimatedHours: summary.estimatedHours,
           dueDate: summary.suggestedDueDate,
-          emailSource: message.id,
+          emailSource: message.threadId,
           tags: JSON.stringify(["email"]),
           userEmail: userEmail!,
         });
 
-        // DOIT-Label entfernen (nach erfolgreicher Todo-Erstellung)
+        // DOIT-Label von allen Nachrichten im Thread entfernen
         try {
-          await GoogleGmailService.removeDoitLabel(message.id, labelId, accessToken);
+          await removeLabelsFromThread(message, labelId, accessToken);
         } catch (labelError) {
-          console.error(`[Gmail Cron] Label-Entfernung fehlgeschlagen für ${message.id}:`, labelError instanceof Error ? labelError.message : labelError);
-          // Kein Abbruch - Todo wurde erstellt, Label wird beim nächsten Run als Duplikat übersprungen
+          console.error(`[Gmail Cron] Label-Entfernung fehlgeschlagen für Thread ${message.threadId}:`, labelError instanceof Error ? labelError.message : labelError);
         }
 
         results.processed++;
