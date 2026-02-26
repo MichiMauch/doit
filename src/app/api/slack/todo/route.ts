@@ -201,12 +201,17 @@ export async function POST(request: NextRequest) {
     if (!text.trim()) {
       return NextResponse.json({
         response_type: "ephemeral",
-        text: "❌ Bitte gib eine Aufgabe ein!\n\nBeispiele:\n• `/todo Meeting vorbereiten`\n• `/todo Report schreiben 08.07.2025`\n• `/todo Präsentation 15.12.2024 14:30`",
+        text: "❌ Bitte gib eine Aufgabe ein!\n\nBeispiele:\n• `/todo Meeting vorbereiten`\n• `/todo Meeting vorbereiten | Agenda und Teilnehmer klären`\n• `/todo Report schreiben 08.07.2025 | Quartalszahlen zusammenfassen`",
       });
     }
 
-    // Parse task and date from text
-    const { title, dueDate, hasTime } = parseTaskWithDate(text.trim());
+    // Split title and description by "|"
+    const parts = text.trim().split("|");
+    const titlePart = parts[0].trim();
+    const descriptionPart = parts.length > 1 ? parts.slice(1).join("|").trim() : null;
+
+    // Parse task and date from title part
+    const { title, dueDate, hasTime } = parseTaskWithDate(titlePart);
 
     // Map Slack user to email (you can extend this mapping)
     const userEmailMapping: Record<string, string> = {
@@ -218,10 +223,13 @@ export async function POST(request: NextRequest) {
     // Get user email or use slack-based email as fallback
     const userEmail = userEmailMapping[userName] || `${userName}@slack.local`;
 
+    // Build description: user-provided or default
+    const description = descriptionPart || `Erstellt via Slack von ${userName} in #${channelName}`;
+
     // Create todo in database
     const newTodo = await db.insert(todos).values({
       title: title,
-      description: `Erstellt via Slack von ${userName} in #${channelName}`,
+      description: description,
       completed: false,
       priority: "medium",
       dueDate: dueDate,
@@ -251,16 +259,19 @@ export async function POST(request: NextRequest) {
           })}`
       : '';
 
+    // Format description for Slack message
+    const descText = descriptionPart ? `\n📝 ${descriptionPart}` : '';
+
     // Return success response to Slack
     return NextResponse.json({
       response_type: "ephemeral",
-      text: `✅ Todo erfolgreich erstellt!\n\n📋 *${title}*${dueDateText}\n\n🔗 Sieh dir alle Todos an: https://doit.mauch.rocks`,
+      text: `✅ Todo erfolgreich erstellt!\n\n📋 *${title}*${descText}${dueDateText}\n\n🔗 Sieh dir alle Todos an: https://doit.mauch.rocks`,
       blocks: [
         {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `✅ *Todo erfolgreich erstellt!*\n\n📋 ${title}${dueDateText}`,
+            text: `✅ *Todo erfolgreich erstellt!*\n\n📋 ${title}${descText}${dueDateText}`,
           },
         },
         {
@@ -295,11 +306,11 @@ export async function GET() {
     message: "DOIT Slack Integration is running! 🚀",
     endpoint: "POST /api/slack/todo",
     usage: [
-      "/todo <task description>",
-      "/todo <task description> 08.07.2025",
-      "/todo <task description> 15.12.2024 14:30",
-      "/todo <task description> 25.03",
-      "/todo <task description> 10.05 09:00"
+      "/todo <title>",
+      "/todo <title> | <description>",
+      "/todo <title> 08.07.2025 | <description>",
+      "/todo <title> 15.12.2024 14:30",
+      "/todo <title> 25.03 | <description>"
     ],
     security: {
       allowed_channels: ALLOWED_CHANNELS.length > 0 ? ALLOWED_CHANNELS : "All channels allowed",
