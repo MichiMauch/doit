@@ -5,16 +5,40 @@ import { TodoService } from "@/lib/db/service";
 
 export async function GET(request: NextRequest) {
   try {
+    // 1. Prüfe auf API Key im Header (für externe Dienste)
+    const apiKey = request.headers.get('x-api-key');
+    const isAuthorizedMachine = apiKey === process.env.CRON_SECRET;
+
+    // 2. Prüfe auf Session (für Menschen)
     const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.email) {
+
+    // 3. Bestimme die userEmail
+    let userEmail: string | undefined;
+
+    if (isAuthorizedMachine) {
+      userEmail = process.env.CRON_USER_EMAIL;
+    } else if (session?.user?.email) {
+      userEmail = session.user.email;
+    }
+
+    // 4. Wenn weder noch -> Fehler
+    if (!userEmail) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
     const filter = searchParams.get("filter") as "today" | "week" | "all" | null;
-    
-    const todos = await TodoService.getTodos(filter || "all", session.user.email);
+
+    // Status-Filter: z.B. ?status=todo,in_progress
+    const validStatuses = ["todo", "in_progress", "done"] as const;
+    const statusParam = searchParams.get("status");
+    const statusFilter = statusParam
+      ? statusParam.split(",").filter((s): s is "todo" | "in_progress" | "done" =>
+          (validStatuses as readonly string[]).includes(s)
+        )
+      : undefined;
+
+    const todos = await TodoService.getTodos(filter || "all", userEmail, statusFilter);
     return NextResponse.json(todos);
   } catch (error) {
     console.error("Error fetching todos:", error);

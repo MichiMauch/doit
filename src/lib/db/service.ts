@@ -1,6 +1,6 @@
 import { db } from "./index";
 import { todos, tags, type Todo, type NewTodo, type Tag, type NewTag } from "./schema";
-import { eq, desc, and, or, isNull, gte, lte } from "drizzle-orm";
+import { eq, desc, and, or, isNull, gte, lte, inArray } from "drizzle-orm";
 import { startOfDay, endOfDay, startOfWeek, endOfWeek } from "date-fns";
 
 export class TodoService {
@@ -39,20 +39,25 @@ export class TodoService {
     return this.parseTodo(result[0]);
   }
 
-  static async getTodos(filter?: "today" | "week" | "all", userEmail?: string): Promise<Todo[]> {
+  static async getTodos(filter?: "today" | "week" | "all", userEmail?: string, statusFilter?: ("todo" | "in_progress" | "done")[]): Promise<Todo[]> {
     const whereConditions = [];
-    
+
     // User filter (if provided)
     if (userEmail) {
       whereConditions.push(eq(todos.userEmail, userEmail));
     }
-    
+
+    // Status filter (e.g. ["todo", "in_progress"])
+    if (statusFilter && statusFilter.length > 0) {
+      whereConditions.push(inArray(todos.status, statusFilter));
+    }
+
     // Date filter
     if (filter === "today") {
       const today = new Date();
       const start = startOfDay(today);
       const end = endOfDay(today);
-      
+
       whereConditions.push(
         or(
           and(gte(todos.dueDate, start), lte(todos.dueDate, end)),
@@ -63,7 +68,7 @@ export class TodoService {
       const today = new Date();
       const start = startOfWeek(today);
       const end = endOfWeek(today);
-      
+
       whereConditions.push(
         or(
           and(gte(todos.dueDate, start), lte(todos.dueDate, end)),
